@@ -21,7 +21,8 @@ Univarate and bivariate analysises are done by using bar charts and heatmap visu
 Inferential statistics notebook can be reached [here](https://github.com/ShiningData/Capstone_Project-IBM_HR_Analytics/blob/master/Inferential%20Statistics/Inferential%20Statistics%20-%20IBM_HR_Analytics.ipynb)
 
 
-## Interim report can be found [here](https://github.com/ShiningData/Capstone_Project-IBM_HR_Analytics/blob/master/Capstone%20Project%20Interim%20Report/Capstone%20Project%20Mid-Report.pdf)
+## Interim report 
+Interim report can be found [here](https://github.com/ShiningData/Capstone_Project-IBM_HR_Analytics/blob/master/Capstone%20Project%20Interim%20Report/Capstone%20Project%20Mid-Report.pdf)
 
 ## Modeling
 This is a supervised binary classification problem. We used Python’s Scikit Learn libraries to solve the problem. In this context, we implemented Logistic Regression, Decision Tree, Random Forest, K-NN, SVM, Kernel SVM, Naive Bayes, Gradient Boosting, and AdaBoosting algorithms. We applied hiperparameter tuning, PCA, and SMOTE techniques to the algorithms. 
