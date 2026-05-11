@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alert Priority Agent — Model Monitoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-elev:#11161e;
+  --bg-card:#141a23;
+  --border:#1f2733;
+  --border-strong:#2a3445;
+  --text:#e8ecf2;
+  --text-dim:#8a96a8;
+  --text-faint:#5a6577;
+  --accent:#ff7a1a;     /* alert orange */
+  --accent-2:#3b82f6;   /* info blue */
+  --good:#22c55e;
+  --warn:#f5b942;
+  --bad:#ef4444;
+  --crit:#dc2626;
+  --grid:#1a212c;
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+  --display:'Fraunces', Georgia, serif;
+  --body:'Inter Tight', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{
+  background-image:
+    radial-gradient(circle at 15% -10%, rgba(255,122,26,.04), transparent 40%),
+    radial-gradient(circle at 85% 110%, rgba(59,130,246,.04), transparent 40%);
+  min-height:100vh;
+}
+
+/* ====== HEADER ====== */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,13,18,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{
+  width:36px;height:36px;border:1px solid var(--border-strong);border-radius:6px;
+  display:grid;place-items:center;background:linear-gradient(135deg,#1a2230,#0f141c);
+  position:relative;
+}
+.brand-mark::before{
+  content:'';position:absolute;inset:6px;border:1px solid var(--accent);
+  border-radius:3px;opacity:.7;
+}
+.brand-mark::after{
+  content:'';position:absolute;width:6px;height:6px;background:var(--accent);
+  border-radius:50%;box-shadow:0 0 10px var(--accent);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.1}
+.brand-text .title{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.brand-text .sub{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+
+.topnav{display:flex;gap:2px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:3px}
+.topnav a{
+  padding:7px 14px;font-size:12.5px;color:var(--text-dim);text-decoration:none;border-radius:5px;
+  font-weight:500;letter-spacing:.01em;transition:.15s;
+}
+.topnav a:hover{color:var(--text)}
+.topnav a.active{background:var(--bg-card);color:var(--text);box-shadow:inset 0 0 0 1px var(--border-strong)}
+
+.top-meta{display:flex;align-items:center;gap:18px;font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.top-meta .item{display:flex;align-items:center;gap:7px}
+.top-meta strong{color:var(--text);font-weight:500}
+
+/* ====== HERO ====== */
+.hero{
+  padding:32px 28px 24px;
+  border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;
+}
+.hero h1{
+  font-family:var(--display);font-weight:500;font-size:38px;letter-spacing:-.02em;line-height:1.05;
+}
+.hero h1 .accent{color:var(--accent);font-style:italic;font-weight:400}
+.hero .lede{color:var(--text-dim);font-size:14px;margin-top:10px;max-width:720px}
+.hero-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{
+  font-family:var(--mono);font-size:11px;
+  padding:7px 12px;border:1px solid var(--border-strong);background:var(--bg-elev);
+  border-radius:5px;color:var(--text-dim);cursor:pointer;transition:.15s;
+  letter-spacing:.04em;
+}
+.chip:hover{color:var(--text);border-color:var(--text-faint)}
+.chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-primary{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:#0a0d12;
+  border-radius:5px;cursor:pointer;font-weight:600;text-transform:uppercase;
+}
+.btn-primary:hover{filter:brightness(1.1)}
+
+/* ====== LAYOUT ====== */
+.shell{padding:24px 28px 60px;display:grid;gap:20px}
+
+/* Status Row */
+.status-row{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:14px;
+}
+.status-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.status-card .label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--text-faint);
+  text-transform:uppercase;display:flex;align-items:center;gap:8px;
+}
+.status-card .value{
+  font-family:var(--display);font-weight:500;font-size:30px;margin-top:8px;letter-spacing:-.02em;
+}
+.status-card .value .unit{font-size:14px;color:var(--text-dim);font-family:var(--body);margin-left:4px}
+.status-card .delta{font-family:var(--mono);font-size:11px;margin-top:4px}
+.delta.up{color:var(--good)}
+.delta.down{color:var(--bad)}
+.delta.flat{color:var(--text-dim)}
+.status-card .stripe{
+  position:absolute;top:0;left:0;width:3px;height:100%;
+}
+.stripe.green{background:var(--good)}
+.stripe.amber{background:var(--warn)}
+.stripe.red{background:var(--bad)}
+.stripe.blue{background:var(--accent-2)}
+.health-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:3px;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;margin-top:10px;
+}
+.health-pill.good{background:rgba(34,197,94,.12);color:var(--good);border:1px solid rgba(34,197,94,.3)}
+.health-pill.warn{background:rgba(245,185,66,.12);color:var(--warn);border:1px solid rgba(245,185,66,.3)}
+.health-pill.bad{background:rgba(239,68,68,.12);color:var(--bad);border:1px solid rgba(239,68,68,.3)}
+
+/* Section Headers */
+.section{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;
+}
+.section-head{
+  padding:16px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.section-head h2{
+  font-family:var(--display);font-weight:500;font-size:17px;letter-spacing:-.01em;
+  display:flex;align-items:center;gap:12px;
+}
+.section-head h2 .num{
+  font-family:var(--mono);font-size:10.5px;color:var(--text-faint);letter-spacing:.1em;
+  border:1px solid var(--border-strong);padding:2px 7px;border-radius:3px;font-weight:500;
+}
+.section-head .meta{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+.section-body{padding:22px}
+
+/* Two-column row */
+.row-2{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+.row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.row-input-output{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* Charts */
+.chart-wrap{position:relative;height:280px}
+.chart-wrap.tall{height:340px}
+.chart-wrap.short{height:200px}
+.chart-title{
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;
+}
+.chart-title .legend-inline{display:flex;gap:14px}
+.chart-title .legend-inline span{display:inline-flex;align-items:center;gap:6px}
+.chart-title .legend-inline .sw{width:10px;height:2px;border-radius:1px}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.tbl th{
+  text-align:left;font-weight:500;color:var(--text-faint);
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .name{font-family:var(--body);color:var(--text)}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;
+  padding:2px 7px;border-radius:3px;font-weight:500;
+}
+.tag.ok{background:rgba(34,197,94,.12);color:var(--good)}
+.tag.warn{background:rgba(245,185,66,.12);color:var(--warn)}
+.tag.bad{background:rgba(239,68,68,.12);color:var(--bad)}
+.tag.info{background:rgba(59,130,246,.12);color:var(--accent-2)}
+
+/* Confusion matrix */
+.cm{
+  display:grid;grid-template-columns:auto repeat(2,1fr);grid-template-rows:auto repeat(2,1fr);
+  gap:6px;max-width:420px;margin:8px auto;font-family:var(--mono);
+}
+.cm .corner{}
+.cm .axis-x,.cm .axis-y{
+  font-size:10px;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;
+}
+.cm .axis-y{writing-mode:vertical-rl;transform:rotate(180deg)}
+.cm .cell{
+  aspect-ratio:1.4;border-radius:6px;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;padding:14px;
+  border:1px solid var(--border-strong);position:relative;
+}
+.cm .cell .v{font-family:var(--display);font-size:30px;font-weight:500}
+.cm .cell .l{font-size:10px;color:var(--text-faint);margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+.cm .cell .r{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:2px}
+.cm .tp{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.4)}
+.cm .tn{background:rgba(34,197,94,.05);border-color:rgba(34,197,94,.25)}
+.cm .fp{background:rgba(245,185,66,.08);border-color:rgba(245,185,66,.4)}
+.cm .fn{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.45)}
+
+/* Metric tiles */
+.metric-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{
+  background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+}
+.tile .l{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase}
+.tile .v{font-family:var(--display);font-size:24px;font-weight:500;margin-top:6px;letter-spacing:-.01em}
+.tile .b{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);margin-top:3px}
+
+/* Drift bars */
+.drift-list{display:flex;flex-direction:column;gap:10px}
+.drift-row{
+  display:grid;grid-template-columns:180px 1fr 90px 70px;gap:14px;align-items:center;
+  font-family:var(--mono);font-size:11.5px;
+}
+.drift-row .feat{color:var(--text);font-size:12.5px;font-family:var(--body)}
+.drift-row .bar{
+  height:6px;background:var(--bg-elev);border-radius:3px;overflow:hidden;position:relative;
+  border:1px solid var(--border);
+}
+.drift-row .bar .fill{height:100%;border-radius:2px}
+.drift-row .bar .threshold{
+  position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--text-faint);
+}
+.drift-row .psi{text-align:right;color:var(--text-dim)}
+
+/* Inputs / Outputs side panels */
+.io-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:18px}
+.io-card h3{
+  font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.io-card h3 .badge{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--border);color:var(--text)}
+.io-list{display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:11.5px}
+.io-list .row{display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg-card);border-radius:5px;border:1px solid var(--border)}
+.io-list .row .k{color:var(--text-dim)}
+.io-list .row .v{color:var(--text);font-weight:500}
+
+/* Alert feed */
+.alert-feed{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;padding-right:6px}
+.alert-feed::-webkit-scrollbar{width:5px}
+.alert-feed::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+.alert{
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:flex-start;
+  padding:12px 14px;border:1px solid var(--border);border-radius:7px;background:var(--bg-elev);
+  border-left:3px solid var(--text-faint);
+}
+.alert.crit{border-left-color:var(--bad)}
+.alert.warn{border-left-color:var(--warn)}
+.alert.info{border-left-color:var(--accent-2)}
+.alert .icon{
+  width:26px;height:26px;border-radius:5px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+}
+.alert.crit .icon{background:rgba(239,68,68,.15);color:var(--bad)}
+.alert.warn .icon{background:rgba(245,185,66,.15);color:var(--warn)}
+.alert.info .icon{background:rgba(59,130,246,.15);color:var(--accent-2)}
+.alert .body{font-size:13px;line-height:1.45}
+.alert .body .t{font-weight:500;color:var(--text)}
+.alert .body .d{color:var(--text-dim);font-size:12px;margin-top:2px}
+.alert .ts{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);white-space:nowrap}
+
+/* Pipeline diagram */
+.pipeline{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;
+  background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:18px;
+  position:relative;
+}
+.stage{
+  display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px;
+  position:relative;
+}
+.stage:not(:last-child)::after{
+  content:'→';position:absolute;right:-8px;top:18px;color:var(--text-faint);font-family:var(--mono);font-size:18px;
+}
+.stage .icon-box{
+  width:44px;height:44px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-strong);
+  display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--accent);
+  margin-bottom:10px;
+}
+.stage .name{font-size:12.5px;font-weight:500;color:var(--text)}
+.stage .desc{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-top:4px;letter-spacing:.04em}
+
+/* Footer */
+.footer{
+  margin-top:30px;padding:24px 28px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:.04em;
+}
+.footer .sig{display:flex;gap:18px}
+
+@media (max-width:1100px){
+  .row-2,.row-3,.status-row,.row-input-output,.metric-tiles{grid-template-columns:1fr}
+  .pipeline{grid-template-columns:repeat(2,1fr);gap:18px}
+  .stage:not(:last-child)::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">
+      <span class="title">Alert Priority Agent <span style="color:var(--text-faint);font-weight:400">/</span> Monitoring</span>
+      <span class="sub">Model ID · apa-xgb-v3.2.1 · Production</span>
+    </div>
+  </div>
+  <nav class="topnav">
+    <a class="active" href="#overview">Overview</a>
+    <a href="#performance">Performance</a>
+    <a href="#drift">Drift</a>
+    <a href="#fairness">Fairness</a>
+    <a href="#ops">Operations</a>
+    <a href="#alerts">Alerts</a>
+  </nav>
+  <div class="top-meta">
+    <span class="item"><span class="dot"></span> <strong>HEALTHY</strong></span>
+    <span class="item">LAST REFRESH · <strong>14:32:07 UTC</strong></span>
+    <span class="item">OWNER · <strong>DSI / OEA</strong></span>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div>
+    <h1>Alert <span class="accent">Priority</span> Agent · live monitoring</h1>
+    <p class="lede">Continuous surveillance of the production Alert Priority Agent — a Tree-of-Thoughts triage model that scores
+       AML alerts for analyst routing — across data quality, prediction behavior, statistical drift, fairness, and
+       operational health. All metrics are computed against a rolling 24-hour window with daily, weekly, and monthly
+       comparisons against the registered champion baseline.</p>
+  </div>
+  <div class="hero-controls">
+    <button class="chip">24H</button>
+    <button class="chip active">7D</button>
+    <button class="chip">30D</button>
+    <button class="chip">90D</button>
+    <button class="chip">YTD</button>
+    <button class="btn-primary">Export PDF</button>
+  </div>
+</section>
+
+<main class="shell">
+
+  <!-- ============ STATUS ROW ============ -->
+  <div class="status-row" id="overview">
+    <div class="status-card">
+      <span class="stripe green"></span>
+      <div class="label">◆ Model Health Score</div>
+      <div class="value">94.2<span class="unit">/ 100</span></div>
+      <div class="delta up">▲ 1.3 vs. last week</div>
+      <div class="health-pill good">● Within SLA</div>
+    </div>
+    <div class="status-card">
+      <span class="stripe blue"></span>
+      <div class="label">▣ Predictions / 24h</div>
+      <div class="value">2,847,193</div>
+      <div class="delta up">▲ 4.1% vs 7d avg</div>
+    </div>
+    <div class="status-card">
+      <span class="stripe amber"></span>
+      <div class="label">◐ Alert Rate</div>
+      <div class="value">3.42<span class="unit">%</span></div>
+      <div class="delta flat">≈ baseline 3.38%</div>
+    </div>
+    <div class="status-card">
+      <span class="stripe red"></span>
+      <div class="label">⚠ Open Incidents</div>
+      <div class="value">2</div>
+      <div class="delta down">1 critical · 1 warning</div>
+    </div>
+  </div>
+
+  <!-- ============ INPUTS / OUTPUTS ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="num">01</span> Pipeline · Inputs → Outputs</h2>
+      <span class="meta">batch + streaming · kafka → snowflake → mlflow</span>
+    </div>
+    <div class="section-body">
+      <div class="pipeline">
+        <div class="stage">
+          <div class="icon-box">IN</div>
+          <div class="name">Data Ingestion</div>
+          <div class="desc">142 features · 9 sources</div>
+        </div>
+        <div class="stage">
+          <div class="icon-box">FE</div>
+          <div class="name">Feature Engineering</div>
+          <div class="desc">87 derived · feast registry</div>
+        </div>
+        <div class="stage">
+          <div class="icon-box">ML</div>
+          <div class="name">Model Inference</div>
+          <div class="desc">XGBoost · v3.2.1</div>
+        </div>
+        <div class="stage">
+          <div class="icon-box">PP</div>
+          <div class="name">Post-processing</div>
+          <div class="desc">threshold · calibration</div>
+        </div>
+        <div class="stage">
+          <div class="icon-box">OUT</div>
+          <div class="name">Triage Queue</div>
+          <div class="desc">analyst review · feedback</div>
+        </div>
+      </div>
+
+      <div class="row-input-output" style="margin-top:22px">
+
+        <!-- INPUT MONITORING -->
+        <div class="io-card">
+          <h3>↗ Input Monitoring <span class="badge">142 features</span></h3>
+          <div class="io-list">
+            <div class="row"><span class="k">Records ingested (24h)</span><span class="v">2,847,193</span></div>
+            <div class="row"><span class="k">Schema validation pass rate</span><span class="v">99.998%</span></div>
+            <div class="row"><span class="k">Missingness rate (avg)</span><span class="v">0.31%</span></div>
+            <div class="row"><span class="k">Duplicate records</span><span class="v">427 (0.015%)</span></div>
+            <div class="row"><span class="k">Out-of-range values</span><span class="v">88 (0.003%)</span></div>
+            <div class="row"><span class="k">Source freshness lag</span><span class="v">42s p99</span></div>
+            <div class="row"><span class="k">Feature drift (PSI &gt; 0.2)</span><span class="v" style="color:var(--warn)">3 / 142</span></div>
+            <div class="row"><span class="k">Categorical novelty</span><span class="v">11 unseen levels</span></div>
+          </div>
+        </div>
+
+        <!-- OUTPUT MONITORING -->
+        <div class="io-card">
+          <h3>↘ Output Monitoring <span class="badge">predictions</span></h3>
+          <div class="io-list">
+            <div class="row"><span class="k">Total predictions (24h)</span><span class="v">2,847,193</span></div>
+            <div class="row"><span class="k">Predicted positive rate</span><span class="v">3.42%</span></div>
+            <div class="row"><span class="k">Avg predicted score</span><span class="v">0.0418</span></div>
+            <div class="row"><span class="k">Score distribution KS-stat</span><span class="v">0.034</span></div>
+            <div class="row"><span class="k">High-confidence positives (&gt;.9)</span><span class="v">8,712</span></div>
+            <div class="row"><span class="k">Borderline (.45–.55)</span><span class="v">14,902</span></div>
+            <div class="row"><span class="k">Inference p95 latency</span><span class="v">38 ms</span></div>
+            <div class="row"><span class="k">Prediction logging coverage</span><span class="v">100.00%</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODEL PERFORMANCE ============ -->
+  <section class="section" id="performance">
+    <div class="section-head">
+      <h2><span class="num">02</span> Model Performance · Classification Quality</h2>
+      <span class="meta">labels available with ~14d delay · last evaluated on 30d cohort</span>
+    </div>
+    <div class="section-body">
+
+      <div class="metric-tiles" style="margin-bottom:22px">
+        <div class="tile"><div class="l">AUC-ROC</div><div class="v">0.947</div><div class="b">▲ +0.003 · baseline 0.944</div></div>
+        <div class="tile"><div class="l">AUC-PR</div><div class="v">0.612</div><div class="b">▼ −0.018 · baseline 0.630</div></div>
+        <div class="tile"><div class="l">F1 (β=2)</div><div class="v">0.481</div><div class="b">▲ +0.007 · recall-weighted</div></div>
+        <div class="tile"><div class="l">KS Statistic</div><div class="v">0.731</div><div class="b">≈ baseline 0.728</div></div>
+        <div class="tile"><div class="l">Precision @top1%</div><div class="v">0.812</div><div class="b">▼ −0.022 · alert efficiency</div></div>
+        <div class="tile"><div class="l">Recall @top5%</div><div class="v">0.694</div><div class="b">▲ +0.011 · capture rate</div></div>
+        <div class="tile"><div class="l">Brier Score</div><div class="v">0.0214</div><div class="b">calibration · lower is better</div></div>
+        <div class="tile"><div class="l">Log Loss</div><div class="v">0.0832</div><div class="b">▲ slight degrade</div></div>
+      </div>
+
+      <div class="row-2">
+        <div>
+          <div class="chart-title">
+            <span>◆ Performance Trajectory · 90 days</span>
+            <span class="legend-inline">
+              <span><span class="sw" style="background:var(--accent)"></span>AUC-ROC</span>
+              <span><span class="sw" style="background:var(--accent-2)"></span>AUC-PR</span>
+              <span><span class="sw" style="background:var(--text-faint);border-bottom:1px dashed var(--text-faint)"></span>baseline</span>
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="perfChart"></canvas></div>
+        </div>
+
+        <div>
+          <div class="chart-title">
+            <span>◆ Confusion Matrix · 30d evaluation cohort</span>
+            <span style="color:var(--text-faint)">n = 1.42M · threshold τ=0.42</span>
+          </div>
+          <div class="cm">
+            <div class="corner"></div>
+            <div class="axis-x">Pred · Negative</div>
+            <div class="axis-x">Pred · Positive</div>
+            <div class="axis-y">Actual · Positive</div>
+            <div class="cell fn">
+              <div class="v">2,841</div>
+              <div class="l">False Negative</div>
+              <div class="r">FNR 18.3%</div>
+            </div>
+            <div class="cell tp">
+              <div class="v">12,672</div>
+              <div class="l">True Positive</div>
+              <div class="r">Recall 81.7%</div>
+            </div>
+            <div class="axis-y">Actual · Negative</div>
+            <div class="cell tn">
+              <div class="v">1.39M</div>
+              <div class="l">True Negative</div>
+              <div class="r">Spec 99.79%</div>
+            </div>
+            <div class="cell fp">
+              <div class="v">2,917</div>
+              <div class="l">False Positive</div>
+              <div class="r">Prec 81.3%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-2" style="margin-top:24px">
+        <div>
+          <div class="chart-title"><span>◆ ROC Curve · current vs. champion</span><span style="color:var(--text-faint)">AUC 0.947 vs 0.944</span></div>
+          <div class="chart-wrap"><canvas id="rocChart"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-title"><span>◆ Precision–Recall Curve</span><span style="color:var(--text-faint)">AUC-PR 0.612 vs 0.630</span></div>
+          <div class="chart-wrap"><canvas id="prChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="row-2" style="margin-top:24px">
+        <div>
+          <div class="chart-title"><span>◆ Score Distribution · positive vs. negative class</span><span style="color:var(--text-faint)">log scale</span></div>
+          <div class="chart-wrap"><canvas id="scoreDist"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-title"><span>◆ Calibration Reliability</span><span style="color:var(--text-faint)">10-bin · expected vs. actual</span></div>
+          <div class="chart-wrap"><canvas id="calibChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DRIFT MONITORING ============ -->
+  <section class="section" id="drift">
+    <div class="section-head">
+      <h2><span class="num">03</span> Data &amp; Concept Drift</h2>
+      <span class="meta">PSI · KS · JS-Divergence · vs. training reference</span>
+    </div>
+    <div class="section-body">
+      <div class="row-2">
+        <div>
+          <div class="chart-title"><span>◆ Population Stability Index · top features</span><span style="color:var(--text-faint)">| amber 0.10 · red 0.25 |</span></div>
+          <div class="drift-list">
+            <div class="drift-row">
+              <span class="feat">txn_velocity_24h</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:78%;background:var(--bad)"></span></span>
+              <span class="psi">PSI 0.392</span>
+              <span><span class="tag bad">CRIT</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">cross_border_ratio</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:64%;background:var(--bad)"></span></span>
+              <span class="psi">PSI 0.318</span>
+              <span><span class="tag bad">CRIT</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">avg_txn_amt_30d</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:48%;background:var(--warn)"></span></span>
+              <span class="psi">PSI 0.241</span>
+              <span><span class="tag warn">WARN</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">structuring_score</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:36%;background:var(--warn)"></span></span>
+              <span class="psi">PSI 0.182</span>
+              <span><span class="tag warn">WARN</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">counterparty_risk</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:24%;background:var(--good)"></span></span>
+              <span class="psi">PSI 0.118</span>
+              <span><span class="tag ok">OK</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">acct_age_days</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:16%;background:var(--good)"></span></span>
+              <span class="psi">PSI 0.082</span>
+              <span><span class="tag ok">OK</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">geo_diversity_idx</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:12%;background:var(--good)"></span></span>
+              <span class="psi">PSI 0.061</span>
+              <span><span class="tag ok">OK</span></span>
+            </div>
+            <div class="drift-row">
+              <span class="feat">cash_intensity</span>
+              <span class="bar"><span class="threshold"></span><span class="fill" style="width:10%;background:var(--good)"></span></span>
+              <span class="psi">PSI 0.048</span>
+              <span><span class="tag ok">OK</span></span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="chart-title"><span>◆ Drift over time · aggregate PSI</span><span style="color:var(--text-faint)">90d window</span></div>
+          <div class="chart-wrap"><canvas id="driftChart"></canvas></div>
+
+          <div class="chart-title" style="margin-top:24px"><span>◆ Predicted-positive rate vs. actual SAR rate</span><span style="color:var(--text-faint)">concept drift signal</span></div>
+          <div class="chart-wrap short"><canvas id="conceptChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAIRNESS / SUBGROUP ============ -->
+  <section class="section" id="fairness">
+    <div class="section-head">
+      <h2><span class="num">04</span> Fairness · Subgroup Performance</h2>
+      <span class="meta">demographic parity · equalized odds · disparate impact</span>
+    </div>
+    <div class="section-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Population</th>
+            <th class="num">Volume</th>
+            <th class="num">Positive Rate</th>
+            <th class="num">Recall (TPR)</th>
+            <th class="num">Precision</th>
+            <th class="num">FPR</th>
+            <th class="num">Disparate Impact</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="name">Customer Segment</td><td>Retail</td><td class="num">2,104,872</td><td class="num">3.21%</td><td class="num">0.812</td><td class="num">0.804</td><td class="num">0.0019</td><td class="num">1.00 (ref)</td><td><span class="tag ok">OK</span></td></tr>
+          <tr><td class="name"></td><td>Commercial</td><td class="num">512,309</td><td class="num">4.18%</td><td class="num">0.823</td><td class="num">0.831</td><td class="num">0.0021</td><td class="num">1.30</td><td><span class="tag ok">OK</span></td></tr>
+          <tr><td class="name"></td><td>Wealth / PB</td><td class="num">114,021</td><td class="num">2.94%</td><td class="num">0.778</td><td class="num">0.792</td><td class="num">0.0017</td><td class="num">0.92</td><td><span class="tag ok">OK</span></td></tr>
+          <tr><td class="name"></td><td>SMB</td><td class="num">115,991</td><td class="num">5.62%</td><td class="num">0.741</td><td class="num">0.752</td><td class="num">0.0034</td><td class="num">1.75</td><td><span class="tag warn">REVIEW</span></td></tr>
+          <tr><td class="name">Geography</td><td>Domestic</td><td class="num">2,621,408</td><td class="num">3.18%</td><td class="num">0.823</td><td class="num">0.821</td><td class="num">0.0018</td><td class="num">1.00 (ref)</td><td><span class="tag ok">OK</span></td></tr>
+          <tr><td class="name"></td><td>Cross-border</td><td class="num">225,785</td><td class="num">6.21%</td><td class="num">0.762</td><td class="num">0.741</td><td class="num">0.0044</td><td class="num">1.95</td><td><span class="tag warn">REVIEW</span></td></tr>
+          <tr><td class="name">Account Tenure</td><td>&lt; 90d (new)</td><td class="num">142,803</td><td class="num">7.84%</td><td class="num">0.701</td><td class="num">0.692</td><td class="num">0.0061</td><td class="num">2.45</td><td><span class="tag bad">FLAG</span></td></tr>
+          <tr><td class="name"></td><td>≥ 90d</td><td class="num">2,704,390</td><td class="num">3.18%</td><td class="num">0.831</td><td class="num">0.822</td><td class="num">0.0017</td><td class="num">1.00 (ref)</td><td><span class="tag ok">OK</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ OPERATIONAL HEALTH ============ -->
+  <section class="section" id="ops">
+    <div class="section-head">
+      <h2><span class="num">05</span> Operational Health · Latency · Throughput · Resources</h2>
+      <span class="meta">SLO p95 &lt; 50ms · uptime ≥ 99.95%</span>
+    </div>
+    <div class="section-body">
+      <div class="metric-tiles" style="margin-bottom:22px">
+        <div class="tile"><div class="l">Inference p50</div><div class="v">12 ms</div><div class="b">SLO &lt; 25ms ✓</div></div>
+        <div class="tile"><div class="l">Inference p95</div><div class="v">38 ms</div><div class="b">SLO &lt; 50ms ✓</div></div>
+        <div class="tile"><div class="l">Inference p99</div><div class="v">71 ms</div><div class="b">▲ +6ms vs 7d</div></div>
+        <div class="tile"><div class="l">Throughput</div><div class="v">1,182<span style="font-size:14px;color:var(--text-dim);font-family:var(--body);margin-left:4px">qps</span></div><div class="b">peak 1,847 qps</div></div>
+        <div class="tile"><div class="l">Error Rate</div><div class="v">0.012%</div><div class="b">SLO &lt; 0.1% ✓</div></div>
+        <div class="tile"><div class="l">Uptime · 30d</div><div class="v">99.987%</div><div class="b">SLO ≥ 99.95% ✓</div></div>
+        <div class="tile"><div class="l">CPU avg</div><div class="v">42%</div><div class="b">8 replicas</div></div>
+        <div class="tile"><div class="l">Memory avg</div><div class="v">3.1<span style="font-size:14px;color:var(--text-dim);font-family:var(--body);margin-left:4px">GB</span></div><div class="b">/ 8 GB allocated</div></div>
+      </div>
+
+      <div class="row-2">
+        <div>
+          <div class="chart-title"><span>◆ Latency · 24h percentile bands</span><span style="color:var(--text-faint)">p50 / p95 / p99</span></div>
+          <div class="chart-wrap"><canvas id="latencyChart"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-title"><span>◆ Throughput &amp; Error Rate</span><span style="color:var(--text-faint)">qps · errors</span></div>
+          <div class="chart-wrap"><canvas id="throughputChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ALERTS + FEEDBACK ============ -->
+  <section class="section" id="alerts">
+    <div class="section-head">
+      <h2><span class="num">06</span> Alerts · Investigator Feedback Loop</h2>
+      <span class="meta">analyst dispositions · escalation rate · model loop closure</span>
+    </div>
+    <div class="section-body">
+      <div class="row-2">
+        <div>
+          <div class="chart-title"><span>◆ Active &amp; recent monitoring alerts</span><span style="color:var(--text-faint)">last 7d</span></div>
+          <div class="alert-feed">
+            <div class="alert crit">
+              <div class="icon">P1</div>
+              <div class="body">
+                <div class="t">Critical drift · txn_velocity_24h (PSI 0.392)</div>
+                <div class="d">Feature distribution shifted significantly post-Q2 product release. Auto-ticket #DSI-4821 opened. Recommend retraining cycle.</div>
+              </div>
+              <div class="ts">2h ago</div>
+            </div>
+            <div class="alert warn">
+              <div class="icon">P2</div>
+              <div class="body">
+                <div class="t">AUC-PR degradation · 30d cohort</div>
+                <div class="d">PR-AUC dropped from 0.630 → 0.612 (−2.9%). Concentrated in SMB segment. Investigation in progress.</div>
+              </div>
+              <div class="ts">6h ago</div>
+            </div>
+            <div class="alert warn">
+              <div class="icon">P2</div>
+              <div class="body">
+                <div class="t">Subgroup fairness flag · new accounts (&lt; 90d)</div>
+                <div class="d">Disparate impact ratio = 2.45 against ≥90d reference. Recall 0.701 vs 0.831. Review with Compliance.</div>
+              </div>
+              <div class="ts">11h ago</div>
+            </div>
+            <div class="alert info">
+              <div class="icon">i</div>
+              <div class="body">
+                <div class="t">Schema change detected · upstream PMT feed</div>
+                <div class="d">New nullable column 'corridor_code' added. No impact on inference. Logged for next feature spec review.</div>
+              </div>
+              <div class="ts">1d ago</div>
+            </div>
+            <div class="alert info">
+              <div class="icon">i</div>
+              <div class="body">
+                <div class="t">Threshold optimization candidate</div>
+                <div class="d">Current τ=0.42 yields F2=0.481. Grid search suggests τ=0.39 → F2=0.493. Awaiting Risk approval.</div>
+              </div>
+              <div class="ts">2d ago</div>
+            </div>
+            <div class="alert info">
+              <div class="icon">i</div>
+              <div class="body">
+                <div class="t">Feedback loop · 1,247 dispositions ingested</div>
+                <div class="d">Investigator labels from 30d backlog merged. Confusion matrix refreshed.</div>
+              </div>
+              <div class="ts">3d ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="chart-title"><span>◆ Investigator disposition outcomes · 30d</span><span style="color:var(--text-faint)">SAR-filed · cleared · escalated</span></div>
+          <div class="chart-wrap"><canvas id="dispoChart"></canvas></div>
+
+          <div class="metric-tiles" style="grid-template-columns:repeat(2,1fr);margin-top:20px">
+            <div class="tile"><div class="l">SAR Filing Rate</div><div class="v">19.4%</div><div class="b">of model-flagged alerts</div></div>
+            <div class="tile"><div class="l">Avg. Triage Time</div><div class="v">14<span style="font-size:14px;color:var(--text-dim);font-family:var(--body);margin-left:4px">min</span></div><div class="b">▼ −22% YoY</div></div>
+            <div class="tile"><div class="l">Analyst Override Rate</div><div class="v">7.8%</div><div class="b">human-in-loop</div></div>
+            <div class="tile"><div class="l">Backlog</div><div class="v">412</div><div class="b">unresolved · 24h SLA</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GOVERNANCE ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="num">07</span> Model Governance &amp; Lineage</h2>
+      <span class="meta">SR 11-7 · OCC · regulatory readiness</span>
+    </div>
+    <div class="section-body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Attribute</th><th>Value</th><th>Attribute</th><th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Model ID</td><td>apa-xgb-v3.2.1</td><td>Algorithm</td><td>XGBoost · 800 trees · max_depth=7</td></tr>
+          <tr><td>Owner</td><td>DSI · OEA Vertical</td><td>Tier (SR 11-7)</td><td><span class="tag warn">Tier 1 — High</span></td></tr>
+          <tr><td>Trained on</td><td>2025-11-04 · 18M records · 24 mo lookback</td><td>Validated on</td><td>2026-01-12 · MRM independent review</td></tr>
+          <tr><td>Deployed</td><td>2026-02-03 · champion-challenger</td><td>Next scheduled review</td><td>2026-08-03 · semi-annual</td></tr>
+          <tr><td>Training AUC</td><td>0.951</td><td>Production AUC (current)</td><td>0.947</td></tr>
+          <tr><td>Decision threshold</td><td>τ = 0.42 (calibrated)</td><td>Calibration method</td><td>Isotonic regression</td></tr>
+          <tr><td>Feature count</td><td>142 (87 derived)</td><td>Top features</td><td>txn_velocity_24h · structuring_score · cross_border_ratio</td></tr>
+          <tr><td>Documentation</td><td><span class="tag info">MDD · Confluence</span></td><td>Compliance review</td><td><span class="tag ok">Approved · 2026-01-20</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="sig">
+    <span>ALERT PRIORITY AGENT · MONITORING DASHBOARD</span>
+    <span>v 2.4.0</span>
+    <span>BUILT BY DSI / OEA</span>
+  </div>
+  <div>SYNTHETIC DATA · ILLUSTRATIVE DESIGN · NOT FOR REGULATORY USE</div>
+</footer>
+
+<script>
+// ====== CHART DEFAULTS ======
+Chart.defaults.font.family="'JetBrains Mono', monospace";
+Chart.defaults.font.size=10.5;
+Chart.defaults.color="#8a96a8";
+Chart.defaults.borderColor="#1f2733";
+Chart.defaults.plugins.legend.display=false;
+
+const grid={color:"#1a212c",drawTicks:false};
+const gridDashed={color:"#1a212c",borderDash:[3,3]};
+
+// ====== PERFORMANCE TRAJECTORY ======
+const days=Array.from({length:90},(_,i)=>{
+  const d=new Date();d.setDate(d.getDate()-(89-i));
+  return (i%10===0)?`${d.getMonth()+1}/${d.getDate()}`:'';
+});
+function genSeries(start,vol,trend){
+  const out=[start];for(let i=1;i<90;i++){
+    out.push(Math.max(0.5,Math.min(0.99,out[i-1]+(Math.random()-0.5)*vol+trend)));
+  }return out;
+}
+new Chart(document.getElementById('perfChart'),{
+  type:'line',
+  data:{labels:days,datasets:[
+    {label:'AUC-ROC',data:genSeries(0.945,0.004,0.00002),borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.08)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
+    {label:'AUC-PR',data:genSeries(0.625,0.008,-0.0002),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.06)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
+    {label:'Baseline ROC',data:Array(90).fill(0.944),borderColor:'#5a6577',borderDash:[4,4],pointRadius:0,borderWidth:1.2,fill:false},
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{grid:{display:false},ticks:{maxRotation:0}},
+      y:{min:0.55,max:0.99,grid:gridDashed,ticks:{callback:v=>v.toFixed(2)}}
+    },interaction:{mode:'index',intersect:false}}
+});
+
+// ====== ROC CURVE ======
+function roc(auc){
+  const pts=[];for(let x=0;x<=1;x+=0.01){
+    pts.push({x,y:Math.min(1,Math.pow(x,1-auc)*1.0)});
+  }return pts;
+}
+new Chart(document.getElementById('rocChart'),{
+  type:'line',
+  data:{datasets:[
+    {label:'Current (0.947)',data:roc(0.947),borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.1)',fill:true,tension:.2,pointRadius:0,borderWidth:2},
+    {label:'Champion (0.944)',data:roc(0.944),borderColor:'#3b82f6',pointRadius:0,borderWidth:1.5,borderDash:[4,4]},
+    {label:'Random',data:[{x:0,y:0},{x:1,y:1}],borderColor:'#5a6577',pointRadius:0,borderWidth:1,borderDash:[2,4]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{type:'linear',min:0,max:1,grid:gridDashed,title:{display:true,text:'False Positive Rate',color:'#5a6577'}},
+      y:{min:0,max:1,grid:gridDashed,title:{display:true,text:'True Positive Rate',color:'#5a6577'}}
+    }}
+});
+
+// ====== PR CURVE ======
+function prCurve(){
+  const pts=[];for(let r=0.01;r<=1;r+=0.02){
+    const p=Math.max(0.1,Math.min(0.95, 1.0 - Math.pow(r,1.6)*0.85 + (Math.random()-0.5)*0.02));
+    pts.push({x:r,y:p});
+  }return pts;
+}
+new Chart(document.getElementById('prChart'),{
+  type:'line',
+  data:{datasets:[
+    {label:'Current',data:prCurve(),borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.1)',fill:true,tension:.2,pointRadius:0,borderWidth:2},
+    {label:'Baseline',data:prCurve().map(p=>({x:p.x,y:Math.min(0.96,p.y+0.025)})),borderColor:'#3b82f6',pointRadius:0,borderWidth:1.5,borderDash:[4,4]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{type:'linear',min:0,max:1,grid:gridDashed,title:{display:true,text:'Recall',color:'#5a6577'}},
+      y:{min:0,max:1,grid:gridDashed,title:{display:true,text:'Precision',color:'#5a6577'}}
+    }}
+});
+
+// ====== SCORE DISTRIBUTION ======
+function genHist(mean,std,n){
+  const bins=Array(40).fill(0);
+  for(let i=0;i<n;i++){
+    let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();
+    const z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+    let val=Math.max(0,Math.min(1,mean+z*std));
+    bins[Math.min(39,Math.floor(val*40))]++;
+  }return bins;
+}
+const histN=genHist(0.05,0.08,12000);
+const histP=genHist(0.78,0.12,800);
+new Chart(document.getElementById('scoreDist'),{
+  type:'bar',
+  data:{
+    labels:Array.from({length:40},(_,i)=>(i/40).toFixed(2)),
+    datasets:[
+      {label:'Negative',data:histN,backgroundColor:'rgba(59,130,246,.55)',borderRadius:1},
+      {label:'Positive',data:histP.map(v=>v*15),backgroundColor:'rgba(255,122,26,.85)',borderRadius:1}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{grid:{display:false},ticks:{maxTicksLimit:11},title:{display:true,text:'Predicted score',color:'#5a6577'}},
+      y:{type:'logarithmic',grid:gridDashed,title:{display:true,text:'count (log)',color:'#5a6577'}}
+    }}
+});
+
+// ====== CALIBRATION ======
+const calibActual=[0.008,0.025,0.072,0.143,0.234,0.356,0.482,0.607,0.751,0.881];
+const calibIdeal=[0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95];
+new Chart(document.getElementById('calibChart'),{
+  type:'line',
+  data:{
+    labels:calibIdeal.map(v=>v.toFixed(2)),
+    datasets:[
+      {label:'Perfect',data:calibIdeal,borderColor:'#5a6577',borderDash:[4,4],pointRadius:0,borderWidth:1.2},
+      {label:'Actual',data:calibActual,borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.12)',fill:'-1',tension:.25,pointRadius:3,pointBackgroundColor:'#ff7a1a',borderWidth:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{grid:gridDashed,title:{display:true,text:'Mean predicted prob.',color:'#5a6577'}},
+      y:{min:0,max:1,grid:gridDashed,title:{display:true,text:'Observed frequency',color:'#5a6577'}}
+    }}
+});
+
+// ====== DRIFT OVER TIME ======
+const drift90=Array.from({length:90},(_,i)=>{
+  const base=0.05+i*0.0035;
+  return Math.max(0.02,base+(Math.random()-0.5)*0.04);
+});
+new Chart(document.getElementById('driftChart'),{
+  type:'line',
+  data:{labels:days,datasets:[
+    {label:'Aggregate PSI',data:drift90,borderColor:'#ff7a1a',backgroundColor:'rgba(255,122,26,.1)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'Warning',data:Array(90).fill(0.10),borderColor:'#f5b942',borderDash:[4,4],pointRadius:0,borderWidth:1},
+    {label:'Critical',data:Array(90).fill(0.25),borderColor:'#ef4444',borderDash:[4,4],pointRadius:0,borderWidth:1}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{x:{grid:{display:false}},y:{min:0,max:0.45,grid:gridDashed}}}
+});
+
+// ====== CONCEPT DRIFT ======
+const cd=Array.from({length:30},(_,i)=>i+1);
+new Chart(document.getElementById('conceptChart'),{
+  type:'line',
+  data:{
+    labels:cd.map(d=>`d${d}`),
+    datasets:[
+      {label:'Predicted+',data:cd.map(()=>3.1+Math.random()*0.6),borderColor:'#ff7a1a',pointRadius:0,borderWidth:2,tension:.3,fill:false},
+      {label:'Actual SAR',data:cd.map((_,i)=>2.8+i*0.012+Math.random()*0.4),borderColor:'#3b82f6',pointRadius:0,borderWidth:2,tension:.3,borderDash:[4,3]}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{x:{grid:{display:false}},y:{grid:gridDashed,ticks:{callback:v=>v.toFixed(1)+'%'}}}}
+});
+
+// ====== LATENCY ======
+const hours=Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`);
+new Chart(document.getElementById('latencyChart'),{
+  type:'line',
+  data:{labels:hours,datasets:[
+    {label:'p50',data:hours.map(()=>10+Math.random()*4),borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'p95',data:hours.map(()=>32+Math.random()*8),borderColor:'#f5b942',backgroundColor:'rgba(245,185,66,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'p99',data:hours.map(()=>62+Math.random()*16),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'SLO',data:Array(24).fill(50),borderColor:'#5a6577',borderDash:[4,4],pointRadius:0,borderWidth:1}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:gridDashed,title:{display:true,text:'ms',color:'#5a6577'}}}}
+});
+
+// ====== THROUGHPUT ======
+new Chart(document.getElementById('throughputChart'),{
+  type:'bar',
+  data:{labels:hours,datasets:[
+    {label:'qps',data:hours.map((_,i)=>800+Math.sin(i/3)*400+Math.random()*200),backgroundColor:'rgba(59,130,246,.7)',borderRadius:2,yAxisID:'y'},
+    {label:'errors',data:hours.map(()=>Math.random()*15),type:'line',borderColor:'#ef4444',backgroundColor:'#ef4444',pointRadius:2,borderWidth:2,yAxisID:'y1',tension:.3}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    scales:{
+      x:{grid:{display:false},ticks:{maxTicksLimit:8}},
+      y:{grid:gridDashed,title:{display:true,text:'qps',color:'#5a6577'}},
+      y1:{position:'right',grid:{display:false},title:{display:true,text:'errors',color:'#5a6577'},min:0,max:50}
+    }}
+});
+
+// ====== DISPOSITIONS ======
+const w=Array.from({length:8},(_,i)=>`wk${i+1}`);
+new Chart(document.getElementById('dispoChart'),{
+  type:'bar',
+  data:{labels:w,datasets:[
+    {label:'SAR-filed',data:w.map(()=>180+Math.random()*60),backgroundColor:'#ff7a1a',borderRadius:2,stack:'s'},
+    {label:'Escalated',data:w.map(()=>120+Math.random()*50),backgroundColor:'#f5b942',borderRadius:2,stack:'s'},
+    {label:'Cleared',data:w.map(()=>520+Math.random()*120),backgroundColor:'#3b82f6',borderRadius:2,stack:'s'},
+    {label:'False positive',data:w.map(()=>280+Math.random()*80),backgroundColor:'#5a6577',borderRadius:2,stack:'s'}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:12,color:'#8a96a8',font:{size:10.5}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:gridDashed}}}
+});
+
+// ====== NAV smooth scroll ======
+document.querySelectorAll('.topnav a').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelectorAll('.topnav a').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+// Time chip toggle
+document.querySelectorAll('.hero-controls .chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.hero-controls .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
