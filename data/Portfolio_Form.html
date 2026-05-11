@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSI Project Portfolio — New Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #00205C;
+    --navy-mid:    #003087;
+    --navy-light:  #0A4A9B;
+    --accent:      #FF6B00;
+    --accent-soft: #FFF2E8;
+    --electric:    #00AEEF;
+    --electric-soft:#E8F7FD;
+    --white:       #FFFFFF;
+    --surface:     #F5F7FC;
+    --gray-50:     #F8FAFD;
+    --gray-100:    #EDF0F7;
+    --gray-200:    #D4DCE8;
+    --gray-400:    #93A3BB;
+    --gray-600:    #4B6080;
+    --text:        #0F1B2D;
+    --muted:       #637080;
+    --border:      #E0E6F0;
+    --green:       #0B8A52;
+    --green-s:     #E6F7EF;
+    --amber:       #B45309;
+    --amber-s:     #FEF3C7;
+    --purple:      #6D28D9;
+    --purple-s:    #EDE9FE;
+    --red:         #C8102E;
+    --red-s:       #FEE8EC;
+    --radius:      10px;
+    --radius-lg:   16px;
+    --shadow-sm:   0 1px 4px rgba(0,32,92,.06);
+    --shadow:      0 4px 20px rgba(0,32,92,.09);
+    --shadow-lg:   0 12px 48px rgba(0,32,92,.15);
+
+    /* status colors */
+    --s-planning:   #6D28D9;
+    --s-active:     #0B8A52;
+    --s-review:     #B45309;
+    --s-paused:     #64748B;
+    --s-completed:  #003087;
+    --s-cancelled:  #C8102E;
+
+    /* vertical accent colors */
+    --v-product:   #00AEEF;
+    --v-sales:     #FF6B00;
+    --v-ops:       #10B981;
+    --v-risk:      #8B5CF6;
+    --v-customer:  #F59E0B;
+    --v-team:      #00205C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Figtree', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* ── TOP RAIL ── */
+  .rail {
+    background: var(--navy);
+    height: 44px;
+    display: flex; align-items: center;
+    padding: 0 40px; gap: 8px;
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 2px 20px rgba(0,0,0,.3);
+  }
+  .rail-badge { background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 4px; }
+  .rail-brand { color: rgba(255,255,255,.85); font-size: 13px; font-weight: 600; }
+  .rail-sep   { color: rgba(255,255,255,.25); }
+  .rail-crumb { color: rgba(255,255,255,.5); font-size: 12px; }
+  .rail-cur   { color: rgba(255,255,255,.92); font-size: 12px; font-weight: 700; }
+  .rail-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .rail-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px;
+  }
+  .rs-draft    { background: rgba(245,158,11,.18); color: #F59E0B; }
+  .rs-active   { background: rgba(16,185,129,.18); color: #10B981; }
+  .rs-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .rs-active .rs-dot { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .rail-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,var(--electric),var(--accent)); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+  /* ── HERO HEADER ── */
+  .hero {
+    background: linear-gradient(135deg, #00205C 0%, #003087 55%, #0A4A9B 100%);
+    padding: 36px 40px 32px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,174,239,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,174,239,.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-glow {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,174,239,.15) 0%, transparent 70%);
+    top: -150px; right: -80px; pointer-events: none;
+  }
+  .hero-inner {
+    position: relative; z-index: 1;
+    max-width: 980px; margin: 0 auto;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+  }
+  .hero-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--electric); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .hero-eyebrow::before { content: ''; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+  .hero-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 30px; color: white; letter-spacing: -.3px;
+    line-height: 1.12; margin-bottom: 5px;
+  }
+  .hero-sub { font-size: 13px; color: rgba(255,255,255,.6); font-weight: 400; }
+  .hero-btns { display: flex; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+
+  /* ── STEP TRACK ── */
+  .step-track {
+    background: white; border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+  }
+  .step-track-inner {
+    max-width: 980px; margin: 0 auto;
+    display: flex; align-items: stretch;
+  }
+  .step {
+    flex: 1; display: flex; align-items: center; gap: 9px;
+    padding: 14px 16px 12px; cursor: pointer; user-select: none;
+    border-bottom: 3px solid transparent; transition: all .18s;
+    color: var(--gray-400); font-size: 12px; font-weight: 600;
+  }
+  .step:hover    { color: var(--navy-mid); background: var(--gray-50); }
+  .step.active   { border-bottom-color: var(--electric); color: var(--electric); }
+  .step.done     { border-bottom-color: var(--green); color: var(--green); }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; flex-shrink: 0;
+    transition: all .18s;
+  }
+  .step.active .step-num,
+  .step.done .step-num { background: currentColor; color: white; }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    max-width: 980px; margin: 0 auto;
+    padding: 28px 40px 0;
+    display: grid; grid-template-columns: 1fr 268px;
+    gap: 22px; align-items: start;
+  }
+
+  /* ── BUTTONS ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: 'Figtree',sans-serif; transition: all .17s; white-space: nowrap; }
+  .btn-ghost  { background: transparent; color: rgba(255,255,255,.7); border: 1.5px solid rgba(255,255,255,.25); }
+  .btn-ghost:hover  { background: rgba(255,255,255,.1); color: white; }
+  .btn-white  { background: white; color: var(--navy); }
+  .btn-white:hover  { background: var(--electric-soft); color: var(--navy-mid); transform: translateY(-1px); }
+  .btn-save   { background: var(--gray-100); color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-save:hover { background: var(--electric-soft); border-color: var(--electric); color: var(--navy-mid); }
+  .btn-pub    { background: var(--navy-mid); color: white; box-shadow: 0 2px 8px rgba(0,48,135,.22); }
+  .btn-pub:hover { background: var(--navy); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,48,135,.3); }
+  .btn-sm     { padding: 6px 13px; font-size: 12px; }
+  .btn-remove { background: var(--red-s); color: var(--red); border: 1.5px solid #FECDD3; }
+  .btn-remove:hover { background: #FCA5A5; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: #E55A00; transform: translateY(-1px); }
+
+  /* ── SECTION LABEL ── */
+  .sec { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+  .sec-n { width: 26px; height: 26px; border-radius: 7px; background: var(--navy); color: white; font-family: 'JetBrains Mono',monospace; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sec-title { font-family: 'Instrument Serif',serif; font-size: 18px; color: var(--navy); }
+  .sec-sub   { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ── CARDS ── */
+  .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 18px; animation: fadeUp .3s ease both; }
+  .card:nth-child(2) { animation-delay:.05s; }
+  .card:nth-child(3) { animation-delay:.10s; }
+  .card:nth-child(4) { animation-delay:.15s; }
+  .card:nth-child(5) { animation-delay:.20s; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .card-head {
+    background: var(--gray-50); border-bottom: 1px solid var(--border);
+    padding: 14px 22px 13px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .card-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .card-head-right { margin-left: auto; }
+  .card-body  { padding: 22px; }
+
+  /* ── FIELDS ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+  .lbl { display: block; font-size: 11.5px; font-weight: 700; color: var(--gray-600); letter-spacing: .3px; margin-bottom: 6px; }
+  .lbl .req { color: var(--accent); margin-left: 1px; }
+  .lbl .opt { font-size: 9px; font-weight: 600; background: var(--gray-100); color: var(--gray-400); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .lbl .hint { display: block; font-size: 11px; font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 2px; line-height: 1.45; }
+
+  input[type=text], input[type=email], input[type=url],
+  input[type=date], input[type=number], select, textarea {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    font-family: 'Figtree',sans-serif; font-size: 13px; color: var(--text);
+    background: white; outline: none; appearance: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input::placeholder, textarea::placeholder { color: #A8BCCE; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--electric); box-shadow: 0 0 0 3px rgba(0,174,239,.1);
+  }
+  textarea { resize: vertical; line-height: 1.65; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2393A3BB'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
+  }
+
+  .char-meta { display: flex; justify-content: flex-end; margin-top: 4px; }
+  .cc { font-size: 10px; font-family: 'JetBrains Mono',monospace; color: var(--gray-400); }
+  .cc.warn { color: var(--amber); }
+  .cc.over { color: var(--red); }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  .sec-break { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
+  .sec-break-line { flex: 1; height: 1px; background: var(--gray-100); }
+  .sec-break-label { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--gray-400); white-space: nowrap; }
+
+  /* ── VERTICAL SELECTOR ── */
+  .vert-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+  .vert-opt  { position: relative; }
+  .vert-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .vert-lbl {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+    padding: 12px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; cursor: pointer; transition: all .15s;
+    background: white; user-select: none; position: relative; overflow: hidden;
+  }
+  .vert-lbl::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--vc); border-radius: 0; opacity: 0; transition: opacity .15s;
+  }
+  .vert-opt input:checked + .vert-lbl::before,
+  .vert-lbl:hover::before { opacity: 1; }
+  .vert-lbl:hover { border-color: var(--vc); background: var(--vcs); }
+  .vert-opt input:checked + .vert-lbl { border-color: var(--vc); background: var(--vcs); }
+  .vert-emoji { font-size: 18px; line-height: 1; }
+  .vert-name  { font-size: 11px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+  .vert-opt input:checked + .vert-lbl .vert-name { color: var(--vc); }
+
+  /* ── STATUS PILLS ── */
+  .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .status-opt  { position: relative; }
+  .status-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .status-lbl {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all .15s;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    background: white; user-select: none;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .status-opt input:checked + .status-lbl { border-color: var(--sc); background: var(--scs); color: var(--sct); }
+  .status-lbl:hover { border-color: var(--sc); background: var(--scs); }
+
+  /* ── PRIORITY ── */
+  .priority-row { display: flex; gap: 8px; }
+  .prio-opt { position: relative; }
+  .prio-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .prio-lbl {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 7px;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    cursor: pointer; transition: all .15s; user-select: none; background: white;
+  }
+  .prio-opt.critical input:checked + .prio-lbl,
+  .prio-opt.critical .prio-lbl:hover { border-color: var(--red); background: var(--red-s); color: var(--red); }
+  .prio-opt.high input:checked + .prio-lbl,
+  .prio-opt.high .prio-lbl:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .prio-opt.medium input:checked + .prio-lbl,
+  .prio-opt.medium .prio-lbl:hover { border-color: var(--amber); background: var(--amber-s); color: var(--amber); }
+  .prio-opt.low input:checked + .prio-lbl,
+  .prio-opt.low .prio-lbl:hover { border-color: var(--green); background: var(--green-s); color: var(--green); }
+
+  /* ── TEAM MEMBER ROWS ── */
+  .team-list { display: flex; flex-direction: column; gap: 8px; }
+  .team-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 8px; align-items: center;
+    padding: 10px 12px; background: var(--gray-50);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .team-rm { background: none; border: none; cursor: pointer; color: var(--gray-400); font-size: 16px; padding: 0; line-height: 1; transition: color .13s; flex-shrink: 0; }
+  .team-rm:hover { color: var(--red); }
+  .add-row-btn { display: flex; align-items: center; gap: 5px; width: 100%; margin-top: 4px; padding: 8px 12px; background: none; border: 1.5px dashed var(--gray-200); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--navy-mid); cursor: pointer; font-family: 'Figtree',sans-serif; transition: all .14s; }
+  .add-row-btn:hover { border-color: var(--electric); color: var(--electric); background: var(--electric-soft); }
+
+  /* ── MILESTONE ROWS ── */
+  .milestone-list { display: flex; flex-direction: column; gap: 8px; }
+  .milestone-row {
+    display: grid; grid-template-columns: auto 1fr 160px 100px auto;
+    gap: 8px; align-items: center;
+  }
+  .ms-num { width: 22px; height: 22px; border-radius: 50%; background: var(--navy); color: white; font-family: 'JetBrains Mono',monospace; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ms-status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--gray-200); cursor: pointer; flex-shrink: 0; }
+  .ms-status-dot.done { background: var(--green); border-color: var(--green); }
+
+  /* ── STAKEHOLDER TAGS ── */
+  .tag-box {
+    min-height: 42px; border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    padding: 5px 8px; display: flex; flex-wrap: wrap; gap: 5px;
+    align-items: center; cursor: text; background: white; transition: all .15s;
+  }
+  .tag-box:focus-within { border-color: var(--electric); box-shadow: 0 0 0 3px rgba(0,174,239,.1); }
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--electric-soft); color: var(--navy-mid);
+    border: 1px solid rgba(0,174,239,.2); font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 5px;
+  }
+  .tag-x { background: none; border: none; cursor: pointer; color: var(--electric); opacity: .5; font-size: 13px; line-height: 1; padding: 0; font-family: 'Figtree',sans-serif; }
+  .tag-x:hover { opacity: 1; }
+  .tag-input { border: none !important; outline: none !important; box-shadow: none !important; padding: 4px !important; font-size: 12px !important; min-width: 100px; flex: 1; background: transparent !important; font-family: 'Figtree',sans-serif; color: var(--text); }
+  .tag-hints { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .tag-hint { font-size: 11px; color: var(--muted); background: var(--gray-50); border: 1px solid var(--border); padding: 2px 9px; border-radius: 5px; cursor: pointer; transition: all .13s; }
+  .tag-hint:hover { background: var(--electric-soft); color: var(--navy-mid); border-color: rgba(0,174,239,.2); }
+
+  /* ── PROGRESS SLIDER ── */
+  .progress-wrap { position: relative; }
+  input[type=range] {
+    width: 100%; height: 6px; border-radius: 100px;
+    background: var(--gray-100); outline: none; cursor: pointer;
+    border: none; padding: 0; appearance: none; box-shadow: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--navy-mid);
+    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--navy-mid);
+    cursor: pointer; transition: transform .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .progress-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray-400); margin-top: 6px; font-family: 'JetBrains Mono',monospace; }
+  .progress-val {
+    font-family: 'JetBrains Mono',monospace; font-size: 24px; font-weight: 700;
+    color: var(--navy); text-align: center; margin-bottom: 8px;
+  }
+  .progress-bar-track { height: 8px; background: var(--gray-100); border-radius: 100px; overflow: hidden; margin-bottom: 6px; }
+  .progress-bar-fill  { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--electric), var(--navy-mid)); transition: width .3s ease; }
+
+  /* ── RISK MATRIX ── */
+  .risk-list { display: flex; flex-direction: column; gap: 8px; }
+  .risk-row {
+    display: grid; grid-template-columns: 1fr 100px 100px auto;
+    gap: 8px; align-items: center;
+    padding: 10px 12px; background: var(--gray-50);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .risk-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-align: center; }
+  .risk-low    { background: var(--green-s); color: var(--green); }
+  .risk-medium { background: var(--amber-s); color: var(--amber); }
+  .risk-high   { background: var(--red-s); color: var(--red); }
+
+  /* ── FILE DROP ── */
+  .drop-zone {
+    border: 2px dashed var(--gray-200); border-radius: var(--radius);
+    padding: 20px 16px; text-align: center; cursor: pointer;
+    transition: all .18s; background: var(--gray-50);
+  }
+  .drop-zone:hover { border-color: var(--electric); background: var(--electric-soft); }
+  .drop-zone .dz-icon  { font-size: 24px; margin-bottom: 6px; opacity: .5; }
+  .drop-zone .dz-title { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+  .drop-zone .dz-sub   { font-size: 11px; color: var(--muted); }
+  .drop-zone .dz-sub span { color: var(--electric); font-weight: 600; }
+
+  /* ── TOGGLE ── */
+  .tog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .tog-row:last-child { margin-bottom: 0; }
+  .tog { width: 36px; height: 20px; border-radius: 100px; background: var(--gray-200); position: relative; cursor: pointer; transition: background .17s; flex-shrink: 0; }
+  .tog.on { background: var(--navy-mid); }
+  .tog::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left .17s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .tog.on::after { left: 19px; }
+  .tog-text { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .tog-text strong { color: var(--text); }
+
+  /* ── FORM FOOTER ── */
+  .form-footer {
+    max-width: 980px; margin: 22px auto 0; padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .footer-note { font-size: 11px; color: var(--muted); }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .side-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; animation: fadeUp .3s ease .15s both; }
+  .side-card + .side-card { animation-delay: .22s; }
+  .side-head { background: var(--gray-50); border-bottom: 1px solid var(--border); padding: 12px 16px; font-size: 11.5px; font-weight: 700; color: var(--navy); letter-spacing: .4px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .side-body { padding: 14px 16px; }
+
+  /* project card preview */
+  .proj-preview {
+    border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+  .pp-top {
+    height: 6px; background: var(--gray-200); transition: background .3s;
+  }
+  .pp-body { padding: 12px 14px 14px; }
+  .pp-vertical { font-size: 9px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 5px; color: var(--muted); }
+  .pp-title { font-family: 'Instrument Serif',serif; font-size: 14px; color: var(--navy); line-height: 1.3; margin-bottom: 6px; min-height: 16px; }
+  .pp-desc { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; min-height: 12px; }
+  .pp-meta { display: flex; justify-content: space-between; align-items: center; }
+  .pp-status { font-size: 9px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: var(--amber-s); color: var(--amber); }
+  .pp-progress-wrap { margin-top: 10px; }
+  .pp-progress-bar { height: 4px; background: var(--gray-100); border-radius: 100px; overflow: hidden; }
+  .pp-progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--electric), var(--navy-mid)); width: 0%; transition: width .4s ease; }
+  .pp-pct { font-family: 'JetBrains Mono',monospace; font-size: 10px; color: var(--muted); margin-top: 4px; text-align: right; }
+
+  /* checklist */
+  .cl { display: flex; flex-direction: column; }
+  .cl-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--gray-50); font-size: 12px; color: var(--muted); transition: color .2s; }
+  .cl-row:last-child { border-bottom: none; }
+  .cl-row.done { color: var(--green); }
+  .cl-icon { font-size: 12px; flex-shrink: 0; width: 14px; text-align: center; }
+
+  /* tips */
+  .tip { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--gray-50); font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+  .tip:last-child { border-bottom: none; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--navy); color: white; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-lg); opacity: 0; z-index: 999; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── DATA & TECH SECTION ── */
+  .dt-subsection {
+    background: var(--gray-50); border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px;
+  }
+  .dt-subsection:last-child { margin-bottom: 0; }
+  .dt-sub-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 18px 12px; background: white;
+    border-bottom: 1.5px solid var(--border); cursor: pointer; user-select: none;
+  }
+  .dt-sub-head-left { display: flex; align-items: center; gap: 10px; }
+  .dt-sub-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .dt-sub-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .dt-sub-badge { font-size: 10px; font-weight: 700; background: var(--electric-soft); color: var(--navy-mid); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,174,239,.18); }
+  .dt-sub-chevron { color: var(--gray-400); font-size: 14px; transition: transform .2s; }
+  .dt-sub-chevron.open { transform: rotate(180deg); }
+  .dt-sub-body { padding: 18px; }
+
+  /* primary data source rows */
+  .pds-list { display: flex; flex-direction: column; gap: 8px; }
+  .pds-row {
+    display: grid; grid-template-columns: 200px 1fr auto;
+    gap: 10px; align-items: start;
+    padding: 12px 14px; background: white;
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    transition: box-shadow .15s;
+  }
+  .pds-row:hover { box-shadow: var(--shadow-sm); }
+  .pds-row-header {
+    display: grid; grid-template-columns: 200px 1fr auto;
+    gap: 10px; padding: 7px 14px;
+    font-size: 10.5px; font-weight: 700; color: var(--gray-400);
+    letter-spacing: .4px; text-transform: uppercase;
+    background: var(--gray-50); border-radius: var(--radius);
+    border: 1px solid var(--border); margin-bottom: 4px;
+  }
+
+  /* enriched data rows */
+  .enriched-card {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px;
+    transition: box-shadow .18s;
+  }
+  .enriched-card:hover { box-shadow: var(--shadow); }
+  .enriched-card:last-child { margin-bottom: 0; }
+
+  .ec-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px 11px; background: var(--navy);
+    cursor: pointer; user-select: none;
+  }
+  .ec-table-ref {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    font-weight: 600; color: var(--electric); flex: 1;
+  }
+  .ec-table-ref em { color: rgba(255,255,255,.45); font-style: normal; font-size: 11px; }
+  .ec-chev { color: rgba(255,255,255,.45); font-size: 13px; transition: transform .2s; }
+  .ec-chev.open { transform: rotate(180deg); }
+  .ec-rm { background: none; border: none; cursor: pointer; color: rgba(255,255,255,.35); font-size: 16px; padding: 0; transition: color .13s; }
+  .ec-rm:hover { color: #FCA5A5; }
+
+  .ec-body { padding: 16px 18px; }
+
+  /* refresh schedule table */
+  .rs-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); margin-top: 4px; }
+  .rs-table th {
+    background: var(--navy); color: rgba(255,255,255,.7);
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 9px 12px; text-align: left;
+    border-bottom: none;
+  }
+  .rs-table th:first-child { border-radius: 8px 0 0 0; }
+  .rs-table th:last-child  { border-radius: 0 8px 0 0; width: 32px; }
+  .rs-table td {
+    padding: 10px 12px; font-size: 12px; color: var(--text);
+    border-bottom: 1px solid var(--border); vertical-align: top;
+    background: white;
+  }
+  .rs-table tr:last-child td { border-bottom: none; }
+  .rs-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  .rs-table tr:last-child td:last-child  { border-radius: 0 0 8px 0; }
+  .rs-table tr:nth-child(even) td { background: var(--gray-50); }
+
+  /* detail sub-rows inside table */
+  .rs-table input[type=text],
+  .rs-table textarea,
+  .rs-table select {
+    padding: 6px 9px; font-size: 12px; border-radius: 6px;
+    border: 1.5px solid var(--gray-200);
+  }
+  .rs-table textarea { min-height: 56px; resize: vertical; }
+
+  /* section label within data card */
+  .dt-inner-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.8px;
+    text-transform: uppercase; color: var(--accent);
+    margin: 14px 0 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .dt-inner-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* code-style ref */
+  .code-ref {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: var(--gray-100); color: var(--navy-mid);
+    padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Rail -->
+<div class="rail">
+  <span class="rail-badge">DSI</span>
+  <span class="rail-brand">Data Science & Intelligence</span>
+  <span class="rail-sep"> › </span>
+  <span class="rail-crumb">Project Portfolio</span>
+  <span class="rail-sep"> › </span>
+  <span class="rail-cur">New Project</span>
+  <div class="rail-right">
+    <div class="rail-status rs-draft" id="rail-status">
+      <span class="rs-dot"></span><span id="rail-status-text">Draft</span>
+    </div>
+    <div class="rail-avatar">EK</div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">📁 Project Portfolio</div>
+      <div class="hero-title">Initiate New Project</div>
+      <div class="hero-sub">Complete this form to add a project to the DSI portfolio — visible to stakeholders, leadership, and all PNC teams</div>
+    </div>
+    <div class="hero-btns">
+      <button class="btn btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="btn btn-white" onclick="publishProject()">🚀 Add to Portfolio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step Track -->
+<div class="step-track">
+  <div class="step-track-inner">
+    <div class="step active" id="st-1"><div class="step-num"><span>1</span></div>Overview</div>
+    <div class="step"        id="st-2"><div class="step-num"><span>2</span></div>Team & Stakeholders</div>
+    <div class="step"        id="st-3"><div class="step-num"><span>3</span></div>Timeline & Milestones</div>
+    <div class="step"        id="st-4"><div class="step-num"><span>4</span></div>Technical Details</div>
+    <div class="step"        id="st-5"><div class="step-num"><span>5</span></div>Governance & Publish</div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="layout">
+<div><!-- LEFT COLUMN -->
+
+  <!-- ════ 1. PROJECT OVERVIEW ════ -->
+  <div class="sec">
+    <div class="sec-n">1</div>
+    <div class="sec-title">Project Overview</div>
+    <div class="sec-sub">Core identity of the project</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:#EFF6FF;">📋</div>
+      <div>
+        <div class="card-title">Basic Information</div>
+        <div class="card-sub">Name, description, vertical, and classification</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="field">
+        <label class="lbl">Project Name <span class="req">*</span></label>
+        <input type="text" id="proj-name" maxlength="80" placeholder="e.g. Payment Flow Intelligence Mapping"
+          oninput="cc(this,'cc-name',80); syncPreview(); syncChecklist()">
+        <div class="char-meta"><span class="cc" id="cc-name">0/80</span></div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">One-Line Summary <span class="req">*</span>
+          <span class="hint">Shown on the project card. Write for a non-technical executive audience.</span>
+        </label>
+        <input type="text" id="proj-summary" maxlength="140" placeholder="e.g. End-to-end analytics of all payment flows to identify bottlenecks and optimization opportunities"
+          oninput="cc(this,'cc-sum',140); syncPreview(); syncChecklist()">
+        <div class="char-meta"><span class="cc" id="cc-sum">0/140</span></div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Full Project Description <span class="req">*</span>
+          <span class="hint">3–5 sentences. Problem → DSI Approach → Expected Impact.</span>
+        </label>
+        <textarea id="proj-desc" rows="4" placeholder="Describe the business problem, DSI's approach, and the expected business impact in clear, accessible language. Avoid acronyms unless necessary." oninput="syncChecklist()"></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Vertical -->
+      <div class="field">
+        <label class="lbl">DSI Vertical <span class="req">*</span></label>
+        <div class="vert-grid">
+          <div class="vert-opt" style="--vc:var(--v-product);--vcs:#EBF8FF;">
+            <input type="radio" name="vertical" id="v-product" value="product" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-product">
+              <span class="vert-emoji">💰</span>
+              <span class="vert-name">Product & RMS</span>
+            </label>
+          </div>
+          <div class="vert-opt" style="--vc:var(--v-sales);--vcs:#FFF3EB;">
+            <input type="radio" name="vertical" id="v-sales" value="sales" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-sales">
+              <span class="vert-emoji">📈</span>
+              <span class="vert-name">Sales & Growth</span>
+            </label>
+          </div>
+          <div class="vert-opt" style="--vc:var(--v-ops);--vcs:#F0FDF9;">
+            <input type="radio" name="vertical" id="v-ops" value="ops" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-ops">
+              <span class="vert-emoji">⚙️</span>
+              <span class="vert-name">Ops & Efficiency</span>
+            </label>
+          </div>
+          <div class="vert-opt" style="--vc:var(--v-risk);--vcs:#F5F3FF;">
+            <input type="radio" name="vertical" id="v-risk" value="risk" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-risk">
+              <span class="vert-emoji">🔒</span>
+              <span class="vert-name">Risk & Compliance</span>
+            </label>
+          </div>
+          <div class="vert-opt" style="--vc:var(--v-customer);--vcs:#FFFBEB;">
+            <input type="radio" name="vertical" id="v-customer" value="customer" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-customer">
+              <span class="vert-emoji">👥</span>
+              <span class="vert-name">Customer & Insights</span>
+            </label>
+          </div>
+          <div class="vert-opt" style="--vc:var(--v-team);--vcs:#EEF2FF;">
+            <input type="radio" name="vertical" id="v-team" value="team" onchange="syncPreview(); syncChecklist()">
+            <label class="vert-lbl" for="v-team">
+              <span class="vert-emoji">🏦</span>
+              <span class="vert-name">Team-Wide</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Status -->
+        <div class="field">
+          <label class="lbl">Project Status <span class="req">*</span></label>
+          <div class="status-grid">
+            <div class="status-opt" style="--sc:#6D28D9;--scs:#EDE9FE;--sct:#4C1D95;">
+              <input type="radio" name="status" id="st-planning" value="planning" checked onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-planning"><span class="status-dot" style="background:#6D28D9;"></span>Planning</label>
+            </div>
+            <div class="status-opt" style="--sc:#0B8A52;--scs:#E6F7EF;--sct:#065F46;">
+              <input type="radio" name="status" id="st-active" value="active" onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-active"><span class="status-dot" style="background:#0B8A52;"></span>Active</label>
+            </div>
+            <div class="status-opt" style="--sc:#B45309;--scs:#FEF3C7;--sct:#92400E;">
+              <input type="radio" name="status" id="st-review" value="review" onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-review"><span class="status-dot" style="background:#B45309;"></span>In Review</label>
+            </div>
+            <div class="status-opt" style="--sc:#64748B;--scs:#F1F5F9;--sct:#475569;">
+              <input type="radio" name="status" id="st-paused" value="paused" onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-paused"><span class="status-dot" style="background:#64748B;"></span>Paused</label>
+            </div>
+            <div class="status-opt" style="--sc:#003087;--scs:#EFF6FF;--sct:#1E40AF;">
+              <input type="radio" name="status" id="st-completed" value="completed" onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-completed"><span class="status-dot" style="background:#003087;"></span>Completed</label>
+            </div>
+            <div class="status-opt" style="--sc:#C8102E;--scs:#FEE8EC;--sct:#991B1B;">
+              <input type="radio" name="status" id="st-cancelled" value="cancelled" onchange="syncPreview(); onStatusChange()">
+              <label class="status-lbl" for="st-cancelled"><span class="status-dot" style="background:#C8102E;"></span>Cancelled</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority -->
+        <div class="field">
+          <label class="lbl">Priority <span class="req">*</span></label>
+          <div class="priority-row" style="flex-direction:column;gap:7px;">
+            <div style="display:flex;gap:7px;">
+              <div class="prio-opt critical">
+                <input type="radio" name="priority" id="p-critical" value="critical">
+                <label class="prio-lbl" for="p-critical">🔴 Critical</label>
+              </div>
+              <div class="prio-opt high">
+                <input type="radio" name="priority" id="p-high" value="high" checked>
+                <label class="prio-lbl" for="p-high">🟠 High</label>
+              </div>
+            </div>
+            <div style="display:flex;gap:7px;">
+              <div class="prio-opt medium">
+                <input type="radio" name="priority" id="p-medium" value="medium">
+                <label class="prio-lbl" for="p-medium">🟡 Medium</label>
+              </div>
+              <div class="prio-opt low">
+                <input type="radio" name="priority" id="p-low" value="low">
+                <label class="prio-lbl" for="p-low">🟢 Low</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label class="lbl">Project ID <span class="opt">Auto</span></label>
+          <input type="text" id="proj-id" placeholder="DSI-2026-001" style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--gray-50);color:var(--muted);" readonly>
+        </div>
+        <div class="field">
+          <label class="lbl">Start Date <span class="req">*</span></label>
+          <input type="date" id="proj-start" oninput="syncChecklist()">
+        </div>
+        <div class="field">
+          <label class="lbl">Target End Date <span class="req">*</span></label>
+          <input type="date" id="proj-end" oninput="syncChecklist()">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Business Value / Expected Impact <span class="req">*</span>
+          <span class="hint">Quantify wherever possible — time saved, cost reduced, revenue impact, accuracy improvement.</span>
+        </label>
+        <textarea rows="2" placeholder="e.g. Expected to reduce payment exception handling time by 40%, saving approximately $X per quarter across Treasury Management team." oninput="syncChecklist()"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ 2. TEAM & STAKEHOLDERS ════ -->
+  <div class="sec">
+    <div class="sec-n">2</div>
+    <div class="sec-title">Team & Stakeholders</div>
+    <div class="sec-sub">Who owns, builds, and benefits</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:#F0FDF9;">👥</div>
+      <div>
+        <div class="card-title">Project Team</div>
+        <div class="card-sub">DSI team members assigned to this project</div>
+      </div>
+      <div class="card-head-right">
+        <button class="btn btn-save btn-sm" onclick="addTeamMember()">+ Add Member</button>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Project Lead / Owner <span class="req">*</span></label>
+          <input type="text" id="proj-lead" placeholder="Full name" oninput="syncChecklist()">
+        </div>
+        <div class="field">
+          <label class="lbl">DSI Partnership Lead <span class="opt">Optional</span></label>
+          <input type="text" placeholder="e.g. Jason Casperson" value="Jason Casperson">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Team Members</label>
+        <div class="team-list" id="team-list">
+          <div class="team-row" style="background:var(--gray-50);border-color:var(--border);padding:8px 10px;">
+            <span style="font-size:11px;font-weight:600;color:var(--gray-400);grid-column:1/5;">Name</span>
+            <span style="font-size:11px;font-weight:600;color:var(--gray-400);">Role</span>
+            <span style="font-size:11px;font-weight:600;color:var(--gray-400);">Allocation</span>
+            <span></span>
+          </div>
+        </div>
+        <button class="add-row-btn" onclick="addTeamMember()">+ Add team member</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label class="lbl">Business Stakeholder Teams <span class="req">*</span>
+          <span class="hint">Type team name and press Enter. These appear as tags on the project card.</span>
+        </label>
+        <div class="tag-box" id="stakeholder-box" onclick="document.getElementById('stakeholder-inp').focus()">
+          <input class="tag-input" id="stakeholder-inp" placeholder="Add stakeholder team…" onkeydown="handleTag(event,'stakeholder-box','stakeholder-inp')">
+        </div>
+        <div class="tag-hints">
+          <span style="font-size:11px;color:var(--muted);">Quick add:</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Treasury Management</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Payments Operations</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Risk & Compliance</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Retail Banking</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Institutional Banking</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Finance</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Marketing</span>
+          <span class="tag-hint" onclick="quickTag('stakeholder-box','stakeholder-inp',this)">Technology & Engineering</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Executive Sponsor <span class="opt">Optional</span></label>
+          <input type="text" placeholder="e.g. Badel L. Mbanga — Data Science Executive">
+        </div>
+        <div class="field">
+          <label class="lbl">Business Owner / Primary Contact <span class="opt">Optional</span></label>
+          <input type="text" placeholder="Name · Team · Email">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ 3. TIMELINE & MILESTONES ════ -->
+  <div class="sec">
+    <div class="sec-n">3</div>
+    <div class="sec-title">Timeline & Milestones</div>
+    <div class="sec-sub">Key checkpoints and delivery phases</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:#FFF2EB;">📅</div>
+      <div>
+        <div class="card-title">Project Timeline</div>
+        <div class="card-sub">Phases, milestones, and current progress</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- Progress -->
+      <div class="field">
+        <label class="lbl">Overall Progress</label>
+        <div class="progress-val" id="prog-val">0%</div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+        <input type="range" id="progress-slider" min="0" max="100" value="0" oninput="onProgress(this.value)">
+        <div class="progress-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Milestones -->
+      <div class="field">
+        <label class="lbl">Project Milestones <span class="opt">Optional</span>
+          <span class="hint">Key phases and deliverables. Click the circle to mark as complete.</span>
+        </label>
+        <div class="milestone-list" id="milestone-list">
+          <div class="milestone-row">
+            <div class="ms-num">1</div>
+            <input type="text" placeholder="e.g. Requirements gathering & stakeholder alignment" value="Requirements gathering & stakeholder alignment">
+            <input type="date" id="ms-1-date">
+            <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+            <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-num">2</div>
+            <input type="text" placeholder="e.g. Data pipeline & exploration complete" value="Data pipeline & exploration complete">
+            <input type="date" id="ms-2-date">
+            <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+            <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-num">3</div>
+            <input type="text" placeholder="e.g. Model development & validation">
+            <input type="date" id="ms-3-date">
+            <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+            <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-num">4</div>
+            <input type="text" placeholder="e.g. UAT & stakeholder review">
+            <input type="date" id="ms-4-date">
+            <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+            <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>
+          </div>
+          <div class="milestone-row">
+            <div class="ms-num">5</div>
+            <input type="text" placeholder="e.g. Production deployment & handoff">
+            <input type="date" id="ms-5-date">
+            <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+            <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>
+          </div>
+        </div>
+        <button class="add-row-btn" onclick="addMilestone()">+ Add milestone</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ 4. TECHNICAL DETAILS ════ -->
+  <div class="sec">
+    <div class="sec-n">4</div>
+    <div class="sec-title">Technical Details</div>
+    <div class="sec-sub">Stack, data sources, risks, and dependencies</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:#F5F3FF;">⚙️</div>
+      <div>
+        <div class="card-title">Technical Specification — Data & Tech</div>
+        <div class="card-sub">Project type, technology stack, primary data sources, enriched data, risks, and dependencies</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="field">
+        <label class="lbl">Project Type <span class="req">*</span></label>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;" id="proj-type-wrap">
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-ml" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-ml" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">🤖 ML / AI Model</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-dash" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-dash" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">📊 Dashboard / Report</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-pipe" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-pipe" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">⚡ Data Pipeline</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-auto" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-auto" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">🔄 Automation</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-llm" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-llm" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">🧠 LLM / Gen AI</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-seg" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-seg" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">🧩 Segmentation</label>
+          </div>
+          <div style="position:relative;">
+            <input type="checkbox" id="pt-res" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="pt-res" class="tag-hint" style="cursor:pointer;padding:6px 13px;font-size:12px;font-weight:600;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.classList.toggle('selected-type')">🔬 Research / POC</label>
+          </div>
+        </div>
+        <style>.selected-type{background:var(--electric-soft)!important;color:var(--navy-mid)!important;border-color:rgba(0,174,239,.3)!important;font-weight:700!important;}</style>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Technology Stack <span class="opt">Optional</span>
+          <span class="hint">Type and press Enter</span>
+        </label>
+        <div class="tag-box" id="tech-box" onclick="document.getElementById('tech-inp').focus()">
+          <input class="tag-input" id="tech-inp" placeholder="e.g. Python, AutoGluon…" onkeydown="handleTag(event,'tech-box','tech-inp')">
+        </div>
+        <div class="tag-hints">
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">Python</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">SQL</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">Tableau</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">Power BI</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">Azure ML</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">Databricks</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">AutoGluon</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">LangChain</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">OpenAI API</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">MongoDB</span>
+          <span class="tag-hint" onclick="quickTag('tech-box','tech-inp',this)">SHAP</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PRIMARY DATA SOURCES                      -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="dt-subsection">
+        <div class="dt-sub-head" onclick="toggleDtSection('pds-body','pds-chev')">
+          <div class="dt-sub-head-left">
+            <div class="dt-sub-icon" style="background:#EFF6FF;">🗄️</div>
+            <div>
+              <div class="dt-sub-title">Primary Data Sources</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:1px;">Source data the project queries from — referenced by system name and db.table format</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="dt-sub-badge" id="pds-count-badge">0 sources</span>
+            <span class="dt-sub-chevron open" id="pds-chev">▾</span>
+          </div>
+        </div>
+        <div class="dt-sub-body" id="pds-body">
+          <p style="font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+            Reference each source by its <strong style="color:var(--navy);">full system name</strong> (e.g. PST — Payment Services Transactional) and the
+            <strong style="color:var(--navy);">db.table</strong> path the project reads from. This documents data lineage for the project.
+          </p>
+          <div class="pds-row-header">
+            <span>System Name (Abbreviation)</span>
+            <span>DB.Table Path</span>
+            <span></span>
+          </div>
+          <div class="pds-list" id="pds-list">
+            <!-- pre-filled example row -->
+            <div class="pds-row">
+              <input type="text" placeholder="e.g. PST (Payment Services Transactional)" style="font-size:12px;">
+              <input type="text" placeholder="e.g. bdahd01p_d1cdil_cdi_tm.payment_trends_wire_transactions_v" style="font-family:'JetBrains Mono',monospace;font-size:11px;" oninput="updatePdsCount()">
+              <button class="team-rm" onclick="this.closest('.pds-row').remove();updatePdsCount()">×</button>
+            </div>
+          </div>
+          <button class="add-row-btn" onclick="addPdsRow()" style="margin-top:8px;">+ Add data source</button>
+          <div style="margin-top:10px;padding:9px 12px;background:var(--electric-soft);border-radius:8px;border:1px solid rgba(0,174,239,.15);font-size:11px;color:var(--navy-mid);line-height:1.55;">
+            💡 <strong>Format tip:</strong> System name should be the full name with abbreviation in parentheses — e.g. <span class="code-ref">PST (Payment Services Transactional)</span>. Table path should follow <span class="code-ref">db.table</span> convention exactly as it appears in the data warehouse.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ENRICHED DATA                             -->
+      <!-- ══════════════════════════════════════════ -->
+      <div class="dt-subsection">
+        <div class="dt-sub-head" onclick="toggleDtSection('ed-body','ed-chev')">
+          <div class="dt-sub-head-left">
+            <div class="dt-sub-icon" style="background:#F0FDF9;">✨</div>
+            <div>
+              <div class="dt-sub-title">Enriched Data</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:1px;">Data assets created and regularly refreshed by this project — with full refresh schedule</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn btn-save btn-sm" onclick="event.stopPropagation();addEnrichedTable()" style="font-size:11px;padding:5px 11px;">+ Add Table</button>
+            <span class="dt-sub-badge" id="ed-count-badge">0 tables</span>
+            <span class="dt-sub-chevron open" id="ed-chev">▾</span>
+          </div>
+        </div>
+        <div class="dt-sub-body" id="ed-body">
+          <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+            Document every intermediate and final table this project creates or refreshes. Reference each in
+            <strong style="color:var(--navy);">db.table</strong> format. The refresh schedule covers the full pipeline from source to output.
+          </p>
+          <div id="enriched-tables-container">
+            <!-- Example pre-filled enriched table card -->
+            <div class="enriched-card" id="et-1">
+              <div class="ec-header" onclick="toggleEnrichedCard('et-1-body','et-1-chev')">
+                <span style="font-size:13px;">📋</span>
+                <span class="ec-table-ref" id="et-1-ref">bdahd01p_dicdi1_cdi_t.payment_trends_report_wire_tr_count <em>— click to edit</em></span>
+                <span class="ec-chev open" id="et-1-chev">▾</span>
+                <button class="ec-rm" onclick="event.stopPropagation();removeEnrichedCard('et-1')" title="Remove">🗑</button>
+              </div>
+              <div class="ec-body" id="et-1-body">
+
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="lbl">DB.Table Reference <span class="req">*</span>
+                      <span class="hint">Exact db.table name as it appears in the warehouse</span>
+                    </label>
+                    <input type="text" value="bdahd01p_dicdi1_cdi_t.payment_trends_report_wire_tr_count"
+                      style="font-family:'JetBrains Mono',monospace;font-size:11px;"
+                      oninput="document.getElementById('et-1-ref').childNodes[0].textContent=this.value||'New table'">
+                  </div>
+                  <div class="field">
+                    <label class="lbl">Table Purpose / Description <span class="req">*</span>
+                      <span class="hint">What this table contains and how it is used downstream</span>
+                    </label>
+                    <input type="text" placeholder="e.g. Monthly wire transaction count aggregated by account type for the Wire Report dashboard">
+                  </div>
+                </div>
+
+                <div class="dt-inner-label">📥 Details — Source & Query</div>
+
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="lbl">Sourced From <span class="hint">db.table(s) this table is built from</span></label>
+                    <input type="text" value="bdahd01p_d1cdil_cdi_tm.payment_trends_wire_transactions_v"
+                      style="font-family:'JetBrains Mono',monospace;font-size:11px;" placeholder="db.source_table">
+                  </div>
+                  <div class="field">
+                    <label class="lbl">Data Volume <span class="hint">Shape of data: rows × columns</span></label>
+                    <div style="display:flex;gap:8px;">
+                      <input type="text" placeholder="Rows (e.g. ~2.4M)" style="flex:1;">
+                      <input type="text" placeholder="Cols (e.g. 18)" style="width:90px;">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="lbl">Query / Transformation Logic <span class="opt">Optional</span>
+                    <span class="hint">SQL snippet, logic description, or key aggregation steps</span>
+                  </label>
+                  <textarea rows="3" placeholder="e.g. SELECT account_type, COUNT(transaction_id) AS wire_count, SUM(amount) AS total_volume&#10;FROM payment_trends_wire_transactions_v&#10;WHERE transaction_date BETWEEN ... GROUP BY account_type"
+                    style="font-family:'JetBrains Mono',monospace;font-size:11.5px;"></textarea>
+                </div>
+
+                <div class="dt-inner-label">🔄 Refresh Schedule & Governance</div>
+
+                <table class="rs-table" id="et-1-rs-table">
+                  <thead>
+                    <tr>
+                      <th style="width:120px;">Group</th>
+                      <th style="width:160px;">Job</th>
+                      <th style="width:110px;">Frequency</th>
+                      <th style="width:170px;">Start Time</th>
+                      <th style="width:160px;">Responsible Party</th>
+                      <th style="width:32px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="et-1-rs-rows">
+                    <tr>
+                      <td><input type="text" value="Wire Report" placeholder="Group name" style="width:100%;"></td>
+                      <td><input type="text" value="Transaction Count" placeholder="Job name" style="width:100%;"></td>
+                      <td>
+                        <select style="width:100%;">
+                          <option>Monthly</option>
+                          <option>Weekly</option>
+                          <option>Daily</option>
+                          <option>Hourly</option>
+                          <option>Ad-hoc</option>
+                        </select>
+                      </td>
+                      <td><input type="text" value="01:30 AM on 7th of each month" placeholder="e.g. 01:30 AM on 7th" style="width:100%;font-size:11px;"></td>
+                      <td><input type="text" value="Hassan Borteh" placeholder="Full name" style="width:100%;"></td>
+                      <td><button class="team-rm" onclick="this.closest('tr').remove()">×</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class="add-row-btn" onclick="addRsRow('et-1-rs-rows')" style="margin-top:7px;font-size:11.5px;">+ Add schedule row</button>
+
+                <div class="dt-inner-label">📝 Notes</div>
+                <textarea rows="2" placeholder="e.g. Demographics and Transaction Count happen sequentially. Later, Tr Revenue and Total Revenue happen sequentially."
+                  style="font-size:12px;">Demographics, Transaction Count happen sequentially. Later, Tr Revenue and Total Revenue happen sequentially.</textarea>
+
+              </div>
+            </div>
+            <!-- end example card -->
+          </div>
+          <button class="add-row-btn" onclick="addEnrichedTable()" style="margin-top:8px;">+ Add enriched table</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Risks -->
+      <div class="field">
+        <label class="lbl">Key Risks & Mitigations <span class="opt">Optional</span></label>
+        <div class="risk-list" id="risk-list">
+          <div class="risk-row">
+            <input type="text" placeholder="Risk description" style="grid-column:1;" value="Data availability and access latency">
+            <select onchange="updateRiskBadge(this)">
+              <option value="medium">🟡 Medium</option>
+              <option value="high">🔴 High</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <select>
+              <option>Open</option>
+              <option>Mitigated</option>
+              <option>Accepted</option>
+            </select>
+            <button class="team-rm" onclick="this.closest('.risk-row').remove()">×</button>
+          </div>
+          <div class="risk-row">
+            <input type="text" placeholder="Risk description" value="Model performance on imbalanced data">
+            <select onchange="updateRiskBadge(this)">
+              <option value="high">🔴 High</option>
+              <option value="medium">🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <select>
+              <option>Open</option>
+              <option>Mitigated</option>
+              <option>Accepted</option>
+            </select>
+            <button class="team-rm" onclick="this.closest('.risk-row').remove()">×</button>
+          </div>
+        </div>
+        <button class="add-row-btn" onclick="addRisk()">+ Add risk</button>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Dependencies <span class="opt">Optional</span>
+          <span class="hint">Other projects, systems, or team approvals this project depends on</span>
+        </label>
+        <textarea rows="2" placeholder="e.g. Requires Elastic Search migration completion (Tech team, Q2 2026) · MRM review approval before production deployment"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ 5. GOVERNANCE & PUBLISH ════ -->
+  <div class="sec">
+    <div class="sec-n">5</div>
+    <div class="sec-title">Governance & Publish</div>
+    <div class="sec-sub">MRM, visibility, and documentation</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:#FEE8EC;">🔒</div>
+      <div>
+        <div class="card-title">Governance & Publication Settings</div>
+        <div class="card-sub">Compliance flags, visibility, and supporting documents</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="sec-break">
+        <div class="sec-break-line"></div>
+        <div class="sec-break-label">Model Risk Management</div>
+        <div class="sec-break-line"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label class="lbl">MRM Review Required?</label>
+          <select id="mrm-required">
+            <option value="yes">✅ Yes — Model involved</option>
+            <option value="no">⬜ No — Analytics only</option>
+            <option value="tbd">❓ TBD / Under review</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">MRM Status</label>
+          <select id="mrm-status">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Submitted</option>
+            <option>Approved</option>
+            <option>N/A</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Regulatory Impact</label>
+          <select>
+            <option>None</option>
+            <option>Low — Internal use only</option>
+            <option>Medium — Influences decisions</option>
+            <option>High — Regulatory reporting</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sec-break">
+        <div class="sec-break-line"></div>
+        <div class="sec-break-label">Portfolio Visibility</div>
+        <div class="sec-break-line"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Portfolio Visibility <span class="req">*</span></label>
+          <select id="proj-vis" onchange="syncChecklist()">
+            <option value="all">🏦 All PNC Employees</option>
+            <option value="stakeholders">🎯 DSI + Stakeholders only</option>
+            <option value="team">🔒 DSI Team Only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Portfolio Status <span class="req">*</span></label>
+          <select id="proj-pub-status" onchange="onPubStatusChange()">
+            <option value="draft">💾 Save as Draft</option>
+            <option value="active">✅ Add to Portfolio Now</option>
+            <option value="review">👁 Submit for Review</option>
+            <option value="archived">🗂 Archived</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Portfolio Options</label>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:2px;">
+          <div class="tog-row"><div class="tog on" onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Feature on DSI home page</strong> — show in highlighted projects section</span></div>
+          <div class="tog-row"><div class="tog on" onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Show progress bar</strong> on portfolio card</span></div>
+          <div class="tog-row"><div class="tog on" onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Show stakeholder tags</strong> on portfolio card</span></div>
+          <div class="tog-row"><div class="tog"    onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Notify stakeholders</strong> when project status changes</span></div>
+          <div class="tog-row"><div class="tog"    onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Add to DSI Weekly Update</strong> — include in next news edition</span></div>
+        </div>
+      </div>
+
+      <div class="sec-break">
+        <div class="sec-break-line"></div>
+        <div class="sec-break-label">Supporting Documents</div>
+        <div class="sec-break-line"></div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Attach Documents <span class="opt">Optional</span>
+          <span class="hint">Project brief, data dictionary, model card, stakeholder deck, etc.</span>
+        </label>
+        <div class="drop-zone" onclick="document.getElementById('doc-file').click()">
+          <div class="dz-icon">📎</div>
+          <div class="dz-title">Drop documents here</div>
+          <div class="dz-sub">or <span>browse files</span> · PDF, DOCX, PPTX, XLSX · Max 50MB total</div>
+        </div>
+        <input type="file" id="doc-file" multiple style="display:none">
+      </div>
+
+      <div class="field">
+        <label class="lbl">Admin / Internal Notes <span class="opt">Not visible publicly</span></label>
+        <textarea rows="2" placeholder="e.g. MRM documentation in progress. Jason to review before publishing. Stakeholder alignment meeting scheduled for next week."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end left -->
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+
+  <!-- Project Card Preview -->
+  <div class="side-card">
+    <div class="side-head">🃏 Portfolio Card Preview</div>
+    <div class="side-body">
+      <div class="proj-preview">
+        <div class="pp-top" id="pp-top"></div>
+        <div class="pp-body">
+          <div class="pp-vertical" id="pp-vertical">DSI · VERTICAL</div>
+          <div class="pp-title"   id="pp-title">Project name will appear here…</div>
+          <div class="pp-desc"    id="pp-desc">One-line summary will appear here…</div>
+          <div class="pp-meta">
+            <span class="pp-status" id="pp-status">Planning</span>
+            <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;" id="pp-dates">—</span>
+          </div>
+          <div class="pp-progress-wrap">
+            <div class="pp-progress-bar"><div class="pp-progress-fill" id="pp-fill"></div></div>
+            <div class="pp-pct" id="pp-pct">0%</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10.5px;color:var(--muted);margin-top:9px;line-height:1.5;">Live preview as you fill in fields. This is how the project card appears in the Portfolio.</p>
+    </div>
+  </div>
+
+  <!-- Readiness Checklist -->
+  <div class="side-card">
+    <div class="side-head">✅ Ready to Publish?</div>
+    <div class="side-body">
+      <div class="cl">
+        <div class="cl-row" id="cl-name">   <span class="cl-icon">○</span>Project name</div>
+        <div class="cl-row" id="cl-summary"><span class="cl-icon">○</span>One-line summary</div>
+        <div class="cl-row" id="cl-desc">   <span class="cl-icon">○</span>Description written</div>
+        <div class="cl-row" id="cl-vert">   <span class="cl-icon">○</span>Vertical selected</div>
+        <div class="cl-row" id="cl-status"> <span class="cl-icon">○</span>Status set</div>
+        <div class="cl-row" id="cl-dates">  <span class="cl-icon">○</span>Start & end dates</div>
+        <div class="cl-row" id="cl-impact"> <span class="cl-icon">○</span>Business impact defined</div>
+        <div class="cl-row" id="cl-lead">   <span class="cl-icon">○</span>Project lead named</div>
+        <div class="cl-row done" id="cl-vis"><span class="cl-icon">✓</span>Visibility configured</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Guide -->
+  <div class="side-card">
+    <div class="side-head">📐 What Makes a Great Entry</div>
+    <div class="side-body">
+      <div class="tip"><span>🎯</span><span><strong style="color:var(--navy);">Executive-first summary.</strong> The one-liner is read by C-Suite. Write it for them first.</span></div>
+      <div class="tip"><span>📊</span><span><strong style="color:var(--navy);">Quantify everything.</strong> "40% faster" beats "significantly faster" every time.</span></div>
+      <div class="tip"><span>🔗</span><span><strong style="color:var(--navy);">Tag all stakeholders.</strong> This routes the card to the right people in their vertical view.</span></div>
+      <div class="tip"><span>📅</span><span><strong style="color:var(--navy);">Keep milestones fresh.</strong> Update status monthly so the card reflects reality.</span></div>
+      <div class="tip"><span>🔒</span><span><strong style="color:var(--navy);">Flag MRM early.</strong> If a model is involved, start the MRM checklist on Day 1.</span></div>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="side-card">
+    <div class="side-head">📊 Portfolio Stats</div>
+    <div class="side-body">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--border);">
+          <span style="font-size:12px;color:var(--muted);">Total Projects</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--navy);">12</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--green-s);border-radius:8px;border:1px solid rgba(11,138,82,.15);">
+          <span style="font-size:12px;color:var(--green);">Active</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green);">7</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--purple-s);border-radius:8px;border:1px solid rgba(109,40,217,.15);">
+          <span style="font-size:12px;color:var(--purple);">Planning</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--purple);">3</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--electric-soft);border-radius:8px;border:1px solid rgba(0,174,239,.15);">
+          <span style="font-size:12px;color:var(--navy-mid);">Completed</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--navy-mid);">2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end sidebar -->
+</div><!-- end layout -->
+
+<!-- Footer -->
+<div class="form-footer">
+  <span class="footer-note">Auto-saved · Last saved <strong id="last-saved">just now</strong></span>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost btn-save">👁 Preview Card</button>
+    <button class="btn btn-save" onclick="saveDraft()">💾 Save Draft</button>
+    <button class="btn btn-pub"  onclick="publishProject()">🚀 Add to Portfolio</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="t-icon">✅</span><span id="t-msg">Saved</span></div>
+
+<script>
+// ─── VERTICAL CONFIG ───────────────────────────────────────────────────────
+const VERTICALS = {
+  product:  { label:'Product & RMS',       color:'#00AEEF', emoji:'💰' },
+  sales:    { label:'Sales & Growth',      color:'#FF6B00', emoji:'📈' },
+  ops:      { label:'Ops & Efficiency',    color:'#10B981', emoji:'⚙️' },
+  risk:     { label:'Risk & Compliance',   color:'#8B5CF6', emoji:'🔒' },
+  customer: { label:'Customer & Insights', color:'#F59E0B', emoji:'👥' },
+  team:     { label:'Team-Wide',           color:'#003087', emoji:'🏦' },
+};
+const STATUS_COLORS = {
+  planning:'#6D28D9', active:'#0B8A52', review:'#B45309',
+  paused:'#64748B', completed:'#003087', cancelled:'#C8102E',
+};
+const STATUS_BG = {
+  planning:'#EDE9FE', active:'#E6F7EF', review:'#FEF3C7',
+  paused:'#F1F5F9', completed:'#EFF6FF', cancelled:'#FEE8EC',
+};
+const STATUS_TXT = {
+  planning:'#4C1D95', active:'#065F46', review:'#92400E',
+  paused:'#475569', completed:'#1E40AF', cancelled:'#991B1B',
+};
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('proj-start').valueAsDate = new Date();
+const endDate = new Date(); endDate.setMonth(endDate.getMonth() + 3);
+document.getElementById('proj-end').valueAsDate = endDate;
+document.getElementById('proj-id').value = 'DSI-2026-' + String(Math.floor(Math.random()*900)+100);
+syncChecklist();
+setCheck('cl-status', true);
+setCheck('cl-vis', true);
+syncPreview();
+
+// ─── CHAR COUNTER ──────────────────────────────────────────────────────────
+function cc(el, id, max) {
+  const n = el.value.length;
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.textContent = n + '/' + max;
+  c.className = 'cc' + (n > max*.95 ? ' over' : n > max*.8 ? ' warn' : '');
+}
+
+// ─── LIVE PREVIEW SYNC ─────────────────────────────────────────────────────
+function syncPreview() {
+  const name    = document.getElementById('proj-name').value.trim();
+  const summary = document.getElementById('proj-summary').value.trim();
+  const vert    = document.querySelector('input[name="vertical"]:checked');
+  const status  = document.querySelector('input[name="status"]:checked');
+  const pct     = document.getElementById('progress-slider').value;
+  const start   = document.getElementById('proj-start').value;
+  const end     = document.getElementById('proj-end').value;
+
+  document.getElementById('pp-title').textContent   = name    || 'Project name will appear here…';
+  document.getElementById('pp-desc').textContent    = summary || 'One-line summary will appear here…';
+  document.getElementById('pp-fill').style.width    = pct + '%';
+  document.getElementById('pp-pct').textContent     = pct + '%';
+
+  if (vert) {
+    const v = VERTICALS[vert.value];
+    document.getElementById('pp-vertical').textContent    = v.emoji + ' ' + v.label.toUpperCase();
+    document.getElementById('pp-top').style.background   = v.color;
+    document.getElementById('pp-fill').style.background  = `linear-gradient(90deg, ${v.color}, ${v.color}99)`;
+  }
+
+  if (status) {
+    const st = document.getElementById('pp-status');
+    st.textContent = status.value.charAt(0).toUpperCase() + status.value.slice(1);
+    st.style.background = STATUS_BG[status.value];
+    st.style.color      = STATUS_TXT[status.value];
+  }
+
+  if (start && end) {
+    const s = new Date(start + 'T12:00:00');
+    const e = new Date(end   + 'T12:00:00');
+    const fmt = d => d.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    document.getElementById('pp-dates').textContent = fmt(s) + ' → ' + fmt(e);
+  }
+}
+
+// ─── PROGRESS SLIDER ───────────────────────────────────────────────────────
+function onProgress(v) {
+  document.getElementById('prog-val').textContent = v + '%';
+  document.getElementById('prog-fill').style.width = v + '%';
+  syncPreview();
+}
+
+// ─── STATUS CHANGE ─────────────────────────────────────────────────────────
+function onStatusChange() {
+  const s = document.querySelector('input[name="status"]:checked')?.value || 'planning';
+  const rs = document.getElementById('rail-status');
+  const rt = document.getElementById('rail-status-text');
+  rs.className = 'rail-status';
+  if (s === 'active') { rs.classList.add('rs-active'); rt.textContent = 'Active'; }
+  else { rs.classList.add('rs-draft'); rt.textContent = s.charAt(0).toUpperCase()+s.slice(1); }
+  syncPreview(); syncChecklist();
+}
+
+function onPubStatusChange() {
+  const v = document.getElementById('proj-pub-status').value;
+  if (v === 'active') { document.getElementById('rail-status').className = 'rail-status rs-active'; document.getElementById('rail-status-text').textContent = 'Live'; }
+  else { document.getElementById('rail-status').className = 'rail-status rs-draft'; document.getElementById('rail-status-text').textContent = v==='review'?'In Review':'Draft'; }
+}
+
+// ─── TAG INPUTS ────────────────────────────────────────────────────────────
+function handleTag(e, boxId, inpId) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/,$/, '');
+    if (v) addTagTo(boxId, inpId, v);
+    e.target.value = '';
+  } else if (e.key === 'Backspace' && e.target.value === '') {
+    const chips = document.querySelectorAll('#' + boxId + ' .tag-chip');
+    if (chips.length) chips[chips.length-1].remove();
+  }
+}
+function addTagTo(boxId, inpId, v) {
+  const box = document.getElementById(boxId);
+  const inp = document.getElementById(inpId);
+  const chip = document.createElement('div');
+  chip.className = 'tag-chip';
+  chip.innerHTML = `${v}<button class="tag-x" onclick="this.parentElement.remove()" type="button">×</button>`;
+  box.insertBefore(chip, inp);
+  syncChecklist();
+}
+function quickTag(boxId, inpId, el) {
+  addTagTo(boxId, inpId, el.textContent);
+  el.style.opacity = '.35'; el.style.pointerEvents = 'none';
+}
+
+// ─── TEAM MEMBERS ──────────────────────────────────────────────────────────
+let memberCount = 0;
+function addTeamMember() {
+  memberCount++;
+  const list = document.getElementById('team-list');
+  const row = document.createElement('div');
+  row.className = 'team-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Full name">
+    <input type="text" placeholder="Role / Title">
+    <select>
+      <option>— Allocation —</option>
+      <option>100% — Dedicated</option>
+      <option>50% — Part-time</option>
+      <option>25% — Advisory</option>
+      <option>10% — Review only</option>
+    </select>
+    <button class="team-rm" onclick="this.closest('.team-row').remove()">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+// ─── MILESTONES ────────────────────────────────────────────────────────────
+let msCount = 5;
+function addMilestone() {
+  msCount++;
+  const list = document.getElementById('milestone-list');
+  const row = document.createElement('div');
+  row.className = 'milestone-row';
+  row.innerHTML = `
+    <div class="ms-num">${msCount}</div>
+    <input type="text" placeholder="Milestone description">
+    <input type="date">
+    <select><option>⬜ Planned</option><option>🔵 In Progress</option><option>✅ Done</option></select>
+    <button class="team-rm" onclick="this.closest('.milestone-row').remove()">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+// ─── RISKS ─────────────────────────────────────────────────────────────────
+function addRisk() {
+  const list = document.getElementById('risk-list');
+  const row = document.createElement('div');
+  row.className = 'risk-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Describe the risk…">
+    <select><option value="low">🟢 Low</option><option value="medium">🟡 Medium</option><option value="high">🔴 High</option></select>
+    <select><option>Open</option><option>Mitigated</option><option>Accepted</option></select>
+    <button class="team-rm" onclick="this.closest('.risk-row').remove()">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+// ─── CHECKLIST ─────────────────────────────────────────────────────────────
+function syncChecklist() {
+  const name    = document.getElementById('proj-name').value.trim().length > 0;
+  const summary = document.getElementById('proj-summary').value.trim().length > 0;
+  const desc    = document.getElementById('proj-desc').value.trim().length > 0;
+  const vert    = !!document.querySelector('input[name="vertical"]:checked');
+  const status  = !!document.querySelector('input[name="status"]:checked');
+  const start   = document.getElementById('proj-start').value.length > 0;
+  const end     = document.getElementById('proj-end').value.length > 0;
+  const lead    = document.getElementById('proj-lead').value.trim().length > 0;
+
+  setCheck('cl-name',    name);
+  setCheck('cl-summary', summary);
+  setCheck('cl-desc',    desc);
+  setCheck('cl-vert',    vert);
+  setCheck('cl-status',  status);
+  setCheck('cl-dates',   start && end);
+  setCheck('cl-lead',    lead);
+  syncPreview();
+}
+
+function setCheck(id, done) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('done', done);
+  el.querySelector('.cl-icon').textContent = done ? '✓' : '○';
+}
+
+// ─── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(icon, msg) {
+  document.getElementById('t-icon').textContent = icon;
+  document.getElementById('t-msg').textContent  = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+  document.getElementById('last-saved').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+function saveDraft()      { showToast('💾', 'Project saved as draft'); }
+function publishProject() {
+  const name = document.getElementById('proj-name').value.trim();
+  const vert = document.querySelector('input[name="vertical"]:checked');
+  if (!name)  { showToast('⚠️', 'Please add a project name'); return; }
+  if (!vert)  { showToast('⚠️', 'Please select a DSI vertical'); return; }
+  showToast('🎉', 'Project added to the DSI Portfolio!');
+  document.getElementById('rail-status').className = 'rail-status rs-active';
+  document.getElementById('rail-status-text').textContent = 'Live';
+}
+
+// ─── VERTICAL & INPUTS ─────────────────────────────────────────────────────
+document.querySelectorAll('input[name="vertical"]').forEach(r => r.addEventListener('change', syncChecklist));
+document.querySelectorAll('input[name="status"]').forEach(r  => r.addEventListener('change', onStatusChange));
+document.getElementById('proj-start').addEventListener('change', syncChecklist);
+document.getElementById('proj-end').addEventListener('change', syncChecklist);
+document.getElementById('proj-lead').addEventListener('input', syncChecklist);
+document.getElementById('proj-desc').addEventListener('input', () => {
+  setCheck('cl-desc', document.getElementById('proj-desc').value.trim().length > 0);
+  syncPreview();
+});
+
+// impact field — listen for any textarea in card-5
+document.querySelectorAll('textarea').forEach(t => {
+  t.addEventListener('input', () => {
+    const impactFilled = Array.from(document.querySelectorAll('textarea')).some(t => t.value.trim().length > 0);
+    setCheck('cl-impact', impactFilled);
+  });
+});
+
+
+// ─── DATA & TECH: TOGGLE ──────────────────────────────────────────────────
+function toggleDtSection(bodyId, chevId) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById(chevId);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  chev.classList.toggle('open', !isOpen);
+}
+function toggleEnrichedCard(bodyId, chevId) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById(chevId);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  chev.classList.toggle('open', !isOpen);
+}
+
+// ─── PRIMARY DATA SOURCES ──────────────────────────────────────────────────
+function addPdsRow() {
+  const list = document.getElementById('pds-list');
+  const row = document.createElement('div');
+  row.className = 'pds-row';
+  row.innerHTML = `
+    <input type="text" placeholder="e.g. ACH (Automated Clearing House)" style="font-size:12px;">
+    <input type="text" placeholder="e.g. bdahd01p_achrpt.ach_daily_transactions_v" style="font-family:'JetBrains Mono',monospace;font-size:11px;" oninput="updatePdsCount()">
+    <button class="team-rm" onclick="this.closest('.pds-row').remove();updatePdsCount()">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+  updatePdsCount();
+}
+function updatePdsCount() {
+  const n = document.querySelectorAll('#pds-list .pds-row').length;
+  const badge = document.getElementById('pds-count-badge');
+  if (badge) badge.textContent = n + ' source' + (n!==1?'s':'');
+}
+
+// ─── ENRICHED TABLES ───────────────────────────────────────────────────────
+let etCount = 1;
+function addEnrichedTable() {
+  etCount++;
+  const id = 'et-' + etCount;
+  const container = document.getElementById('enriched-tables-container');
+  const html = `
+  <div class="enriched-card" id="${id}">
+    <div class="ec-header" onclick="toggleEnrichedCard('${id}-body','${id}-chev')">
+      <span style="font-size:13px;">📋</span>
+      <span class="ec-table-ref" id="${id}-ref"><em>Fill in db.table reference below…</em></span>
+      <span class="ec-chev open" id="${id}-chev">▾</span>
+      <button class="ec-rm" onclick="event.stopPropagation();removeEnrichedCard('${id}')" title="Remove">🗑</button>
+    </div>
+    <div class="ec-body" id="${id}-body">
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">DB.Table Reference <span class="req">*</span>
+            <span class="hint">Exact db.table name as it appears in the warehouse</span>
+          </label>
+          <input type="text" placeholder="db.your_table_name" style="font-family:'JetBrains Mono',monospace;font-size:11px;"
+            oninput="document.getElementById('${id}-ref').childNodes[0].textContent=this.value||'New table'">
+        </div>
+        <div class="field">
+          <label class="lbl">Table Purpose / Description <span class="req">*</span></label>
+          <input type="text" placeholder="What this table contains and how it is used">
+        </div>
+      </div>
+
+      <div class="dt-inner-label">📥 Details — Source & Query</div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="lbl">Sourced From</label>
+          <input type="text" placeholder="db.source_table" style="font-family:'JetBrains Mono',monospace;font-size:11px;">
+        </div>
+        <div class="field">
+          <label class="lbl">Data Volume <span class="hint">rows × columns</span></label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" placeholder="Rows (e.g. ~2.4M)" style="flex:1;">
+            <input type="text" placeholder="Cols (e.g. 18)" style="width:90px;">
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Query / Transformation Logic <span class="opt">Optional</span></label>
+        <textarea rows="3" placeholder="SQL snippet or transformation description…" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;"></textarea>
+      </div>
+
+      <div class="dt-inner-label">🔄 Refresh Schedule & Governance</div>
+
+      <table class="rs-table" id="${id}-rs-table">
+        <thead>
+          <tr>
+            <th style="width:120px;">Group</th>
+            <th style="width:160px;">Job</th>
+            <th style="width:110px;">Frequency</th>
+            <th style="width:170px;">Start Time</th>
+            <th style="width:160px;">Responsible Party</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody id="${id}-rs-rows">
+          <tr>
+            <td><input type="text" placeholder="Group" style="width:100%;"></td>
+            <td><input type="text" placeholder="Job name" style="width:100%;"></td>
+            <td><select style="width:100%;"><option>Monthly</option><option>Weekly</option><option>Daily</option><option>Hourly</option><option>Ad-hoc</option></select></td>
+            <td><input type="text" placeholder="e.g. 01:30 AM on 7th" style="width:100%;font-size:11px;"></td>
+            <td><input type="text" placeholder="Full name" style="width:100%;"></td>
+            <td><button class="team-rm" onclick="this.closest('tr').remove()">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="add-row-btn" onclick="addRsRow('${id}-rs-rows')" style="margin-top:7px;font-size:11.5px;">+ Add schedule row</button>
+
+      <div class="dt-inner-label">📝 Notes</div>
+      <textarea rows="2" placeholder="e.g. Job execution order, dependencies between jobs, any known quirks…" style="font-size:12px;"></textarea>
+
+    </div>
+  </div>`;
+  container.insertAdjacentHTML('beforeend', html);
+  updateEdCount();
+  document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function removeEnrichedCard(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.opacity='0'; el.style.transform='translateY(-6px)'; el.style.transition='all .2s'; setTimeout(()=>{ el.remove(); updateEdCount(); }, 200); }
+}
+
+function updateEdCount() {
+  const n = document.querySelectorAll('.enriched-card').length;
+  const badge = document.getElementById('ed-count-badge');
+  if (badge) badge.textContent = n + ' table' + (n!==1?'s':'');
+}
+
+// ─── REFRESH SCHEDULE ROWS ────────────────────────────────────────────────
+function addRsRow(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Group" style="width:100%;"></td>
+    <td><input type="text" placeholder="Job name" style="width:100%;"></td>
+    <td><select style="width:100%;"><option>Monthly</option><option>Weekly</option><option>Daily</option><option>Hourly</option><option>Ad-hoc</option></select></td>
+    <td><input type="text" placeholder="e.g. 02:00 AM daily" style="width:100%;font-size:11px;"></td>
+    <td><input type="text" placeholder="Full name" style="width:100%;"></td>
+    <td><button class="team-rm" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
+  tr.querySelector('input').focus();
+}
+
+// ─── INIT DATA COUNTS ─────────────────────────────────────────────────────
+updatePdsCount();
+updateEdCount();
+
+// auto-save every 30s
+setInterval(() => {
+  document.getElementById('last-saved').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}, 30000);
+</script>
+</body>
+</html>
