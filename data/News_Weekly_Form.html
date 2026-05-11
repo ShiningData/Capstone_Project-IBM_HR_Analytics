@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSI News — Weekly Update</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #00205C;
+    --navy-mid:   #003087;
+    --accent:     #FF6B00;
+    --electric:   #00AEEF;
+    --off-white:  #F4F6FB;
+    --gray-50:    #F8FAFC;
+    --gray-100:   #EDF0F7;
+    --gray-200:   #D4DBE8;
+    --gray-400:   #9AAAC4;
+    --gray-600:   #4B5F80;
+    --text:       #111827;
+    --muted:      #6B7A99;
+    --border:     #E2E8F0;
+    --white:      #FFFFFF;
+    --green:      #10B981;
+    --radius:     10px;
+    --radius-lg:  16px;
+    --shadow:     0 2px 12px rgba(0,32,92,0.07);
+    --shadow-md:  0 6px 28px rgba(0,32,92,0.12);
+
+    /* category colors */
+    --c-mrm:      #10B981;
+    --c-demo:     #0EA5E9;
+    --c-welcome:  #FF6B00;
+    --c-learn:    #A855F7;
+    --c-kudos:    #EC4899;
+    --c-event:    #3B82F6;
+    --c-update:   #00205C;
+    --c-headsup:  #EF4444;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ── TOP RAIL ── */
+  .rail {
+    background: var(--navy);
+    height: 44px;
+    display: flex; align-items: center;
+    padding: 0 40px; gap: 8px;
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 2px 16px rgba(0,0,0,.28);
+  }
+  .rail-badge { background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; padding: 3px 7px; border-radius: 4px; }
+  .rail-brand { color: rgba(255,255,255,.88); font-size: 13px; font-weight: 600; }
+  .rail-sep   { color: rgba(255,255,255,.25); font-size: 12px; }
+  .rail-crumb { color: rgba(255,255,255,.55); font-size: 12px; }
+  .rail-cur   { color: rgba(255,255,255,.9); font-size: 12px; font-weight: 600; }
+  .rail-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .rail-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 100px;
+  }
+  .rs-draft { background: rgba(245,158,11,.18); color: #F59E0B; }
+  .rs-live  { background: rgba(16,185,129,.18); color: var(--green); }
+  .rs-dot   { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .rs-live .rs-dot { animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .rail-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg,var(--electric),var(--accent));
+    color: #fff; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 26px 40px 22px;
+  }
+  .ph-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+  .ph-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .ph-eyebrow::before { content: ''; width: 18px; height: 2.5px; background: var(--accent); border-radius: 2px; }
+  .ph-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--navy); letter-spacing: -.4px; margin-bottom: 3px; }
+  .ph-sub   { font-size: 13px; color: var(--muted); }
+  .ph-btns  { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* ── WEEK BAR ── */
+  .week-bar { background: white; border-bottom: 1px solid var(--border); padding: 0 40px; }
+  .wb-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; align-items: center; gap: 20px;
+    padding: 11px 0; flex-wrap: wrap;
+  }
+  .wb-label { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--gray-400); }
+  .wb-date-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--off-white); border: 1.5px solid var(--gray-200);
+    border-radius: 8px; padding: 6px 14px;
+  }
+  .wb-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.8s infinite; }
+  .wb-date-wrap input[type=date] {
+    border: none; background: transparent; font-family: 'DM Sans',sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--navy-mid); outline: none; cursor: pointer;
+  }
+  .wb-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--off-white); border: 1.5px solid var(--gray-200);
+    border-radius: 100px; padding: 5px 14px;
+    font-size: 12px; font-weight: 700; color: var(--navy-mid);
+  }
+  .wb-wnum { background: var(--navy); color: white; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 100px; font-family: 'JetBrains Mono',monospace; }
+  .wb-right { margin-left: auto; display: flex; gap: 9px; align-items: center; }
+  .items-ct { font-size: 11px; color: var(--muted); font-weight: 600; background: var(--gray-100); padding: 4px 10px; border-radius: 6px; font-family: 'JetBrains Mono',monospace; }
+
+  /* ── LAYOUT ── */
+  .layout { max-width: 900px; margin: 0 auto; padding: 26px 40px 0; display: grid; grid-template-columns: 1fr 252px; gap: 20px; align-items: start; }
+
+  /* ── BUTTONS ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans',sans-serif; transition: all .17s; white-space: nowrap; }
+  .btn-ghost  { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .btn-ghost:hover { background: var(--gray-100); color: var(--text); border-color: var(--gray-400); }
+  .btn-save   { background: var(--off-white); color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-save:hover { background: #EFF6FF; border-color: var(--electric); color: var(--navy-mid); }
+  .btn-pub    { background: var(--navy-mid); color: white; box-shadow: 0 2px 8px rgba(0,48,135,.22); }
+  .btn-pub:hover { background: var(--navy); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,48,135,.3); }
+  .btn-add    { background: var(--navy-mid); color: white; border: none; padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'DM Sans',sans-serif; display: flex; align-items: center; gap: 5px; transition: all .17s; }
+  .btn-add:hover { background: var(--navy); }
+  .btn-sm     { padding: 6px 12px; font-size: 12px; }
+  .btn-remove { background: #FEE2E2; color: #991B1B; border: 1.5px solid #FECACA; }
+  .btn-remove:hover { background: #FCA5A5; }
+
+  /* ── CARD ── */
+  .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+  .card:first-child { animation: up .32s ease both; }
+  .card-head { background: var(--gray-50); border-bottom: 1px solid var(--border); padding: 14px 22px 13px; display: flex; align-items: center; gap: 10px; }
+  .card-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .card-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .card-body  { padding: 22px; }
+  @keyframes up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── SECTION LABEL ── */
+  .sec-label {
+    display: flex; align-items: center; gap: 10px; margin: 4px 0 14px;
+  }
+  .sec-label-num {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--navy); color: white;
+    font-family: 'Syne',sans-serif; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sec-label-title { font-family: 'Syne',sans-serif; font-size: 15px; font-weight: 800; color: var(--navy); letter-spacing: -.2px; }
+  .sec-label-sub   { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ── FIELDS ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .field-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+  .lbl { display: block; font-size: 11.5px; font-weight: 700; color: var(--gray-600); letter-spacing: .3px; margin-bottom: 6px; }
+  .lbl .req { color: var(--accent); margin-left: 1px; }
+  .lbl .opt { font-size: 9.5px; font-weight: 600; background: var(--gray-100); color: var(--gray-400); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; margin-left: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .lbl .hint { display: block; font-size: 11px; font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 2px; line-height: 1.4; }
+
+  input[type=text], input[type=email], input[type=url], input[type=date], select, textarea {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    font-family: 'DM Sans',sans-serif; font-size: 13px; color: var(--text);
+    background: white; outline: none; appearance: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input::placeholder, textarea::placeholder { color: #A0AABE; }
+  input:focus, select:focus, textarea:focus { border-color: var(--electric); box-shadow: 0 0 0 3px rgba(0,174,239,.1); }
+  textarea { resize: vertical; line-height: 1.65; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237B8DB0'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+  .char-meta { display: flex; justify-content: flex-end; margin-top: 4px; }
+  .char-ct { font-size: 10px; font-family: 'JetBrains Mono',monospace; color: var(--gray-400); }
+  .char-ct.warn { color: #D97706; }
+  .char-ct.over { color: #DC2626; }
+
+  /* ── CATEGORY PICKER ── */
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cat-opt  { position: relative; }
+  .cat-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .cat-lbl {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 6px 8px; border: 1.5px solid var(--border); border-radius: 9px;
+    cursor: pointer; transition: all .15s; text-align: center;
+    background: white; user-select: none;
+  }
+  .cat-lbl:hover { border-color: var(--electric); background: #EFF9FF; }
+  .cat-lbl .cat-emoji { font-size: 18px; line-height: 1; }
+  .cat-lbl .cat-name  { font-size: 10px; font-weight: 700; color: var(--muted); line-height: 1.2; }
+  .cat-opt input:checked + .cat-lbl { border-color: currentColor; }
+
+  /* category-specific checked states */
+  .cat-opt.mrm     input:checked + .cat-lbl { border-color: var(--c-mrm);     background: #F0FDF9; color: var(--c-mrm); }
+  .cat-opt.demo    input:checked + .cat-lbl { border-color: var(--c-demo);    background: #F0F9FF; color: var(--c-demo); }
+  .cat-opt.welcome input:checked + .cat-lbl { border-color: var(--c-welcome); background: #FFF7F2; color: var(--c-welcome); }
+  .cat-opt.learn   input:checked + .cat-lbl { border-color: var(--c-learn);   background: #FAF5FF; color: var(--c-learn); }
+  .cat-opt.kudos   input:checked + .cat-lbl { border-color: var(--c-kudos);   background: #FFF0F9; color: var(--c-kudos); }
+  .cat-opt.event   input:checked + .cat-lbl { border-color: var(--c-event);   background: #EFF6FF; color: var(--c-event); }
+  .cat-opt.update  input:checked + .cat-lbl { border-color: var(--c-update);  background: #EEF2FF; color: var(--c-update); }
+  .cat-opt.headsup input:checked + .cat-lbl { border-color: var(--c-headsup); background: #FFF5F5; color: var(--c-headsup); }
+  .cat-opt input:checked + .cat-lbl .cat-name { color: currentColor; font-weight: 800; }
+
+  /* ── COLORED ACCENT STRIP ── (updates dynamically) */
+  .cat-strip {
+    height: 4px; border-radius: 4px 4px 0 0;
+    background: var(--gray-200);
+    margin: -22px -22px 20px -22px;
+    transition: background .3s;
+  }
+
+  /* ── BULLET BUILDER ── */
+  .bullet-list { display: flex; flex-direction: column; gap: 7px; }
+  .bullet-row  { display: flex; align-items: center; gap: 8px; }
+  .bullet-icon { color: var(--accent); font-size: 11px; font-weight: 900; flex-shrink: 0; width: 14px; text-align: center; }
+  .bullet-rm   { background: none; border: none; cursor: pointer; color: var(--gray-400); font-size: 15px; flex-shrink: 0; transition: color .14s; padding: 0; line-height: 1; }
+  .bullet-rm:hover { color: #DC2626; }
+  .add-bullet  { display: flex; align-items: center; gap: 5px; width: 100%; margin-top: 5px; padding: 7px 12px; background: none; border: 1.5px dashed var(--gray-200); border-radius: 8px; font-size: 11.5px; font-weight: 600; color: var(--navy-mid); cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all .14s; }
+  .add-bullet:hover { border-color: var(--electric); color: var(--electric); background: #EFF9FF; }
+
+  /* ── TOGGLE ── */
+  .tog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .tog-row:last-child { margin-bottom: 0; }
+  .tog { width: 36px; height: 20px; border-radius: 100px; background: var(--gray-200); position: relative; cursor: pointer; transition: background .17s; flex-shrink: 0; }
+  .tog.on { background: var(--navy-mid); }
+  .tog::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left .17s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .tog.on::after { left: 19px; }
+  .tog-text { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .tog-text strong { color: var(--text); }
+
+  /* ── NEWS ITEM CARD ── */
+  .ni-card {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+    margin-bottom: 14px; transition: box-shadow .2s;
+    animation: up .28s ease both;
+  }
+  .ni-card:hover { box-shadow: var(--shadow-md); }
+
+  .ni-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px 11px; cursor: pointer; user-select: none;
+    background: var(--gray-50); border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .ni-head::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--gray-200); transition: background .3s; }
+
+  /* category border colors on header */
+  .ni-card[data-cat=mrm]     .ni-head::before { background: var(--c-mrm); }
+  .ni-card[data-cat=demo]    .ni-head::before { background: var(--c-demo); }
+  .ni-card[data-cat=welcome] .ni-head::before { background: var(--c-welcome); }
+  .ni-card[data-cat=learn]   .ni-head::before { background: var(--c-learn); }
+  .ni-card[data-cat=kudos]   .ni-head::before { background: var(--c-kudos); }
+  .ni-card[data-cat=event]   .ni-head::before { background: var(--c-event); }
+  .ni-card[data-cat=update]  .ni-head::before { background: var(--c-update); }
+  .ni-card[data-cat=headsup] .ni-head::before { background: var(--c-headsup); }
+
+  .ni-drag { color: var(--gray-400); cursor: grab; font-size: 14px; flex-shrink: 0; }
+  .ni-num  { font-family: 'JetBrains Mono',monospace; font-size: 10px; font-weight: 700; color: var(--gray-400); flex-shrink: 0; width: 18px; text-align: center; }
+
+  /* category badge in header */
+  .ni-cat-badge {
+    font-size: 9.5px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 4px; flex-shrink: 0;
+    background: var(--gray-100); color: var(--muted);
+    transition: all .2s;
+  }
+  .ni-card[data-cat=mrm]     .ni-cat-badge { background: #D1FAE5; color: #065F46; }
+  .ni-card[data-cat=demo]    .ni-cat-badge { background: #DBEAFE; color: #1E40AF; }
+  .ni-card[data-cat=welcome] .ni-cat-badge { background: #FFEDD5; color: #9A3412; }
+  .ni-card[data-cat=learn]   .ni-cat-badge { background: #F3E8FF; color: #6B21A8; }
+  .ni-card[data-cat=kudos]   .ni-cat-badge { background: #FCE7F3; color: #9F1239; }
+  .ni-card[data-cat=event]   .ni-cat-badge { background: #E0F2FE; color: #075985; }
+  .ni-card[data-cat=update]  .ni-cat-badge { background: #EEF2FF; color: #3730A3; }
+  .ni-card[data-cat=headsup] .ni-cat-badge { background: #FEE2E2; color: #991B1B; }
+
+  .ni-title-preview { font-size: 13px; font-weight: 600; color: var(--navy); flex: 1; line-height: 1.25; }
+  .ni-title-preview em { color: var(--muted); font-style: normal; font-weight: 400; font-size: 12px; }
+  .ni-chevron { color: var(--gray-400); font-size: 15px; flex-shrink: 0; transition: transform .2s; }
+  .ni-chevron.open { transform: rotate(180deg); }
+
+  .ni-body { padding: 22px; }
+  .ni-body.collapsed { display: none; }
+  .ni-footer { display: flex; gap: 8px; padding: 10px 18px 13px; border-top: 1px solid var(--gray-100); background: var(--gray-50); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 32px 20px;
+    border: 2px dashed var(--gray-200); border-radius: var(--radius-lg);
+    color: var(--muted); font-size: 13px; cursor: pointer; transition: all .18s;
+  }
+  .empty-state:hover { border-color: var(--electric); background: #EFF9FF; color: var(--navy-mid); }
+  .empty-state .es-icon { font-size: 30px; margin-bottom: 8px; opacity: .5; }
+  .empty-state strong { display: block; color: var(--navy); font-size: 14px; margin-bottom: 3px; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .side-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; animation: up .32s ease .12s both; }
+  .side-card + .side-card { animation-delay: .2s; }
+  .side-head { background: var(--gray-50); border-bottom: 1px solid var(--border); padding: 12px 16px; font-size: 11.5px; font-weight: 700; color: var(--navy); letter-spacing: .4px; text-transform: uppercase; }
+  .side-body { padding: 14px 16px; }
+
+  /* live preview */
+  .lp-wrap { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lp-edition-head {
+    background: var(--off-white); border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    font-size: 9px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent);
+  }
+  .lp-item {
+    padding: 10px 12px; border-bottom: 1px solid var(--gray-100);
+    position: relative; overflow: hidden;
+    transition: background .2s;
+  }
+  .lp-item:last-child { border-bottom: none; }
+  .lp-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px; background: var(--gray-200); transition: background .3s; }
+  .lp-item[data-cat=mrm]::before     { background: var(--c-mrm); }
+  .lp-item[data-cat=demo]::before    { background: var(--c-demo); }
+  .lp-item[data-cat=welcome]::before { background: var(--c-welcome); }
+  .lp-item[data-cat=learn]::before   { background: var(--c-learn); }
+  .lp-item[data-cat=kudos]::before   { background: var(--c-kudos); }
+  .lp-item[data-cat=event]::before   { background: var(--c-event); }
+  .lp-item[data-cat=update]::before  { background: var(--c-update); }
+  .lp-item[data-cat=headsup]::before { background: var(--c-headsup); }
+  .lp-chip { font-size: 8.5px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; padding: 1.5px 6px; border-radius: 3px; margin-bottom: 4px; display: inline-block; background: var(--gray-100); color: var(--muted); }
+  .lp-title-text { font-family: 'Syne',sans-serif; font-size: 11.5px; font-weight: 800; color: var(--navy); line-height: 1.2; margin-bottom: 2px; }
+  .lp-body-text  { font-size: 10px; color: var(--muted); line-height: 1.4; margin-bottom: 2px; }
+  .lp-date-text  { font-size: 9.5px; color: var(--gray-400); font-weight: 600; }
+
+  /* checklist */
+  .cl { display: flex; flex-direction: column; }
+  .cl-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--gray-50); font-size: 12px; color: var(--muted); transition: color .2s; }
+  .cl-row:last-child { border-bottom: none; }
+  .cl-row.done { color: var(--green); }
+  .cl-icon { font-size: 12px; flex-shrink: 0; }
+
+  /* ── FORM FOOTER ── */
+  .form-footer { max-width: 900px; margin: 20px auto 0; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .footer-note { font-size: 11px; color: var(--muted); }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--navy); color: white; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-md); opacity: 0; z-index: 999; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── CUSTOM CATEGORY TILE ── */
+  .cat-opt.add-custom .cat-lbl {
+    border: 1.5px dashed var(--gray-200);
+    background: var(--gray-50);
+    color: var(--muted);
+    transition: all .15s;
+  }
+  .cat-opt.add-custom .cat-lbl:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft, #FFF3EB);
+    color: var(--accent);
+  }
+  .cat-opt.add-custom .cat-name { color: var(--muted); }
+
+  /* custom category tiles once created */
+  .cat-opt.custom input:checked + .cat-lbl {
+    border-color: var(--custom-color, #6366F1);
+    background: var(--custom-bg, #EEF2FF);
+    color: var(--custom-color, #6366F1);
+  }
+
+  /* ── CUSTOM CATEGORY MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,20,60,.45);
+    backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: white; border-radius: 18px;
+    box-shadow: 0 24px 64px rgba(0,32,92,.22);
+    width: 420px; max-width: 94vw;
+    transform: translateY(16px) scale(.97);
+    transition: transform .25s cubic-bezier(.34,1.3,.64,1);
+    overflow: hidden;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-head {
+    background: var(--navy);
+    padding: 18px 22px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .modal-head-icon { font-size: 20px; }
+  .modal-head-title { font-family: 'Syne',sans-serif; font-size: 16px; font-weight: 800; color: white; flex: 1; }
+  .modal-close { background: none; border: none; color: rgba(255,255,255,.55); font-size: 20px; cursor: pointer; padding: 0; line-height: 1; transition: color .14s; }
+  .modal-close:hover { color: white; }
+
+  .modal-body { padding: 22px; }
+  .modal-footer { padding: 14px 22px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: var(--gray-50); }
+
+  /* emoji picker */
+  .emoji-grid {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 10px; background: var(--gray-50);
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    max-height: 130px; overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .emoji-btn {
+    width: 32px; height: 32px; border-radius: 6px;
+    border: 1.5px solid transparent; background: white;
+    font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all .13s; flex-shrink: 0;
+  }
+  .emoji-btn:hover { border-color: var(--electric); background: #EFF9FF; transform: scale(1.15); }
+  .emoji-btn.selected { border-color: var(--electric); background: #EFF9FF; box-shadow: 0 0 0 2px rgba(0,174,239,.25); }
+
+  /* color swatches */
+  .color-swatches { display: flex; flex-wrap: wrap; gap: 7px; }
+  .swatch {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all .14s; flex-shrink: 0;
+    outline: none;
+  }
+  .swatch:hover { transform: scale(1.18); }
+  .swatch.selected { border-color: var(--navy); box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor; transform: scale(1.12); }
+
+  /* live preview tile in modal */
+  .cat-preview-tile {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 12px 8px 10px; border: 2px solid; border-radius: 10px;
+    min-width: 90px; text-align: center;
+    background: white; transition: all .2s;
+  }
+  .cat-preview-tile .tile-emoji { font-size: 22px; line-height: 1; }
+  .cat-preview-tile .tile-name  { font-size: 10px; font-weight: 800; line-height: 1.2; }
+
+  /* sidebar custom cats list */
+  .custom-cat-list { display: flex; flex-direction: column; gap: 0; }
+  .custom-cat-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid var(--gray-50);
+    font-size: 12px;
+  }
+  .custom-cat-row:last-child { border-bottom: none; }
+  .custom-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .custom-cat-label { font-weight: 600; color: var(--text); flex: 1; }
+  .custom-cat-rm { background: none; border: none; cursor: pointer; color: var(--gray-400); font-size: 14px; padding: 0; transition: color .13s; }
+  .custom-cat-rm:hover { color: #DC2626; }
+  .no-custom-cats { font-size: 11.5px; color: var(--muted); font-style: italic; text-align: center; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<!-- Rail -->
+<div class="rail">
+  <span class="rail-badge">DSI</span>
+  <span class="rail-brand">Data Science & Intelligence</span>
+  <span class="rail-sep"> › </span>
+  <span class="rail-crumb">Home</span>
+  <span class="rail-sep"> › </span>
+  <span class="rail-crumb">DSI News</span>
+  <span class="rail-sep"> › </span>
+  <span class="rail-cur">New Weekly Edition</span>
+  <div class="rail-right">
+    <div class="rail-status rs-draft" id="rail-status"><span class="rs-dot"></span><span id="rail-status-text">Draft</span></div>
+    <div class="rail-avatar">EK</div>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="ph-inner">
+    <div>
+      <div class="ph-eyebrow">📰 DSI News · Weekly Update</div>
+      <div class="ph-title">New Weekly Edition</div>
+      <div class="ph-sub">One universal form — fill in the essentials, pick a category, publish in minutes</div>
+    </div>
+    <div class="ph-btns">
+      <button class="btn btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="btn btn-pub"   onclick="publishEdition()">🚀 Publish Edition</button>
+    </div>
+  </div>
+</div>
+
+<!-- Week Bar -->
+<div class="week-bar">
+  <div class="wb-inner">
+    <span class="wb-label">Edition Week</span>
+    <div class="wb-date-wrap">
+      <span class="wb-pulse"></span>
+      <input type="date" id="week-date" onchange="onWeekChange()">
+    </div>
+    <div class="wb-pill">
+      <span id="week-pill-text">Week of —</span>
+      <span class="wb-wnum" id="week-num">W—</span>
+    </div>
+    <span style="font-size:11px;color:var(--muted);">Edition #<strong id="edition-num">—</strong></span>
+    <div class="wb-right">
+      <span class="items-ct" id="item-count">0 / 5 items</span>
+      <button class="btn-add" onclick="addItem()">+ Add News Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+<div><!-- LEFT -->
+
+  <!-- ════ SECTION 1: EDITION HEADER ════ -->
+  <div class="sec-label">
+    <div class="sec-label-num">1</div>
+    <div class="sec-label-title">Edition Header</div>
+    <div class="sec-label-sub">Displayed above the news grid on the home page</div>
+  </div>
+
+  <div class="card" style="animation-delay:0s;">
+    <div class="card-head">
+      <div class="card-icon" style="background:#EFF6FF;">📋</div>
+      <div><div class="card-title">Edition Details & Settings</div><div class="card-sub">Week, author, visibility, and publish options</div></div>
+    </div>
+    <div class="card-body">
+
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">Section Title <span class="req">*</span></label>
+          <input type="text" id="ed-title" value="What's happening in DSI this week" oninput="syncChecklist()">
+        </div>
+        <div class="field">
+          <label class="lbl">Section Subtitle <span class="opt">Optional</span></label>
+          <input type="text" id="ed-subtitle" value="Keeping our team and partners informed on the latest in AI innovation, data science, and delivery milestones across PNC.">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">Editor / Author <span class="req">*</span></label>
+          <input type="text" id="ed-author" placeholder="Full name" oninput="syncChecklist()">
+        </div>
+        <div class="field">
+          <label class="lbl">Editor Email <span class="req">*</span></label>
+          <input type="email" id="ed-email" placeholder="firstname.lastname@pnc.com">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-row-3">
+        <div class="field">
+          <label class="lbl">Visibility <span class="req">*</span></label>
+          <select id="ed-vis">
+            <option>🏦 All PNC Employees</option>
+            <option>🎯 DSI + Stakeholders</option>
+            <option>🔒 DSI Team Only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Publish Status <span class="req">*</span></label>
+          <select id="ed-status" onchange="onStatusChange()">
+            <option value="draft">💾 Draft</option>
+            <option value="review">👁 Submit for Review</option>
+            <option value="live">✅ Publish Now</option>
+            <option value="scheduled">📅 Schedule</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Archive Label <span class="opt">Optional</span></label>
+          <input type="text" id="ed-archive" placeholder="Auto-generated from week">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Distribution Options</label>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:2px;">
+          <div class="tog-row"><div class="tog on" onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Pin to DSI homepage</strong> for 7 days</span></div>
+          <div class="tog-row"><div class="tog on" onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Email notification</strong> to DSI team</span></div>
+          <div class="tog-row"><div class="tog"    onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Add to news ticker</strong> on home page</span></div>
+          <div class="tog-row"><div class="tog"    onclick="this.classList.toggle('on')"></div><span class="tog-text"><strong>Notify stakeholder partners</strong></span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ SECTION 2: NEWS ITEMS ════ -->
+  <div class="sec-label" style="margin-top:6px;">
+    <div class="sec-label-num">2</div>
+    <div class="sec-label-title">News Items</div>
+    <div class="sec-label-sub">2–5 items · one universal form per item</div>
+  </div>
+
+  <div id="items-container">
+    <!-- items injected here -->
+    <div class="empty-state" id="empty-placeholder" onclick="addItem()">
+      <div class="es-icon">＋</div>
+      <strong>Add Your First News Item</strong>
+      Click here or use the "Add News Item" button above
+    </div>
+  </div>
+
+  <!-- ════ SECTION 3: FOOTER ════ -->
+  <div class="sec-label" style="margin-top:6px;">
+    <div class="sec-label-num">3</div>
+    <div class="sec-label-title">Edition Footer</div>
+    <div class="sec-label-sub">Archive link & admin notes</div>
+  </div>
+
+  <div class="card" style="animation-delay:.15s;">
+    <div class="card-head">
+      <div class="card-icon" style="background:#FFF2EB;">🗂️</div>
+      <div><div class="card-title">Footer & Admin Notes</div><div class="card-sub">Shown at bottom of news section</div></div>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">Footer CTA Text</label>
+          <input type="text" value="View All Past Updates →">
+        </div>
+        <div class="field">
+          <label class="lbl">Footer CTA URL <span class="opt">Optional</span></label>
+          <input type="url" placeholder="Link to archive page">
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Admin Notes <span class="opt">Not visible to readers</span></label>
+        <textarea rows="2" placeholder="e.g. Approved by Jason C. Photos for Haseeb onboarding item pending from HR."></textarea>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end left -->
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+
+  <!-- Live Preview -->
+  <div class="side-card">
+    <div class="side-head">📺 Home Page Preview</div>
+    <div class="side-body">
+      <div class="lp-wrap">
+        <div class="lp-edition-head" id="lp-head">📰 DSI NEWS · WEEKLY UPDATE — WEEK OF —</div>
+        <div id="lp-items-container">
+          <div style="padding:16px;text-align:center;font-size:11px;color:var(--muted);">
+            Add news items to see the preview
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;">Updates live as you type. Reflects the 2-column card grid on the DSI home page.</p>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="side-card">
+    <div class="side-head">✅ Ready to Publish?</div>
+    <div class="side-body">
+      <div class="cl">
+        <div class="cl-row done"  id="cl-week">  <span class="cl-icon">✓</span>Week date set</div>
+        <div class="cl-row"       id="cl-title">  <span class="cl-icon">○</span>Edition title filled</div>
+        <div class="cl-row"       id="cl-author"> <span class="cl-icon">○</span>Editor name added</div>
+        <div class="cl-row"       id="cl-items">  <span class="cl-icon">○</span>At least 2 items added</div>
+        <div class="cl-row"       id="cl-cats">   <span class="cl-icon">○</span>All items have a category</div>
+        <div class="cl-row"       id="cl-titles"> <span class="cl-icon">○</span>All items have a title</div>
+        <div class="cl-row"       id="cl-bodies"> <span class="cl-icon">○</span>All items have body text</div>
+        <div class="cl-row done"  id="cl-vis">    <span class="cl-icon">✓</span>Visibility configured</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Reference -->
+  <div class="side-card">
+    <div class="side-head">🏷️ Categories at a Glance</div>
+    <div class="side-body">
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-mrm);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">MRMG Milestone</strong> — model risk reviews
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-demo);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Office Hours</strong> — demos, showcases
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-welcome);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Welcome</strong> — new members, role changes
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-learn);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Training &amp; Workshop</strong> — sessions, training
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-kudos);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Team Kudos</strong> — recognition, wins
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-event);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Event</strong> — conferences, announcements
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--gray-50);font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-update);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Project Update</strong> — milestones, deliveries
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 0;font-size:11.5px;color:var(--muted);">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--c-headsup);flex-shrink:0;display:inline-block;"></span>
+          <strong style="color:var(--text);">Heads Up</strong> — deadlines, action required
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="side-card">
+    <div class="side-head">✏️ Quick Tips</div>
+    <div class="side-body">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11.5px;color:var(--muted);display:flex;gap:7px;line-height:1.45;padding-bottom:7px;border-bottom:1px solid var(--gray-50);"><span>🎯</span><span><strong style="color:var(--text);">Title = what happened.</strong> Not "Update on X" — use "X delivered to Treasury team."</span></div>
+        <div style="font-size:11.5px;color:var(--muted);display:flex;gap:7px;line-height:1.45;padding-bottom:7px;border-bottom:1px solid var(--gray-50);"><span>👤</span><span><strong style="color:var(--text);">Name people.</strong> Bold names drive recognition and engagement.</span></div>
+        <div style="font-size:11.5px;color:var(--muted);display:flex;gap:7px;line-height:1.45;padding-bottom:7px;border-bottom:1px solid var(--gray-50);"><span>✂️</span><span><strong style="color:var(--text);">Body = 2 sentences.</strong> Bullets carry the detail.</span></div>
+        <div style="font-size:11.5px;color:var(--muted);display:flex;gap:7px;line-height:1.45;"><span>🔗</span><span><strong style="color:var(--text);">Add a CTA</strong> whenever there's an action — join, register, view.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Categories -->
+  <div class="side-card" id="custom-cats-side-card">
+    <div class="side-head">🎨 Custom Categories</div>
+    <div class="side-body">
+      <div class="custom-cat-list" id="custom-cats-sidebar-list">
+        <div class="no-custom-cats" id="no-custom-cats-msg">No custom categories yet.<br>Click "+ New Category" inside any news item.</div>
+      </div>
+      <button class="add-bullet" style="margin-top:10px;" onclick="openCatModal(null)">＋ Create New Category</button>
+    </div>
+  </div>
+
+</div><!-- end sidebar -->
+</div><!-- end layout -->
+
+<!-- Footer -->
+<div class="form-footer">
+  <span class="footer-note">Auto-saved · Last saved <strong id="last-saved">just now</strong></span>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost">👁 Preview</button>
+    <button class="btn btn-save" onclick="saveDraft()">💾 Save Draft</button>
+    <button class="btn btn-pub"  onclick="publishEdition()">🚀 Publish Edition</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="t-icon">✅</span><span id="t-msg">Saved</span></div>
+
+<!-- ══ CUSTOM CATEGORY MODAL ══ -->
+<div class="modal-overlay" id="cat-modal" onclick="closeCatModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-head-icon">🎨</span>
+      <span class="modal-head-title">Create Custom Category</span>
+      <button class="modal-close" onclick="closeCatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Live preview -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;padding:14px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;text-align:center;">Tile Preview</div>
+          <div class="cat-preview-tile" id="modal-preview" style="border-color:#6366F1;color:#6366F1;min-width:90px;">
+            <span class="tile-emoji" id="modal-prev-emoji">✨</span>
+            <span class="tile-name"  id="modal-prev-name">My Category</span>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Badge Preview</div>
+          <div id="modal-badge-preview" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;padding:4px 10px;border-radius:5px;background:#EEF2FF;color:#6366F1;">✨ MY CATEGORY</div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted);">This badge will appear on the news card.</div>
+        </div>
+      </div>
+      <!-- Name -->
+      <div class="field" style="margin-bottom:16px;">
+        <label class="lbl">Category Name <span class="req">*</span></label>
+        <input type="text" id="custom-cat-name" maxlength="28" placeholder="e.g. Partnership Win, Research Spotlight…" oninput="onCustomCatInput()">
+        <div class="char-meta"><span class="char-ct" id="custom-name-cc">0/28</span></div>
+      </div>
+      <!-- Emoji -->
+      <div class="field" style="margin-bottom:16px;">
+        <label class="lbl">Icon / Emoji <span class="req">*</span></label>
+        <div class="emoji-grid" id="emoji-grid"></div>
+        <div style="margin-top:7px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--muted);">Or type your own:</span>
+          <input type="text" id="custom-emoji-input" maxlength="2" placeholder="😀" style="width:52px;text-align:center;font-size:18px;padding:5px 8px;" oninput="onCustomEmojiType(this.value)">
+        </div>
+      </div>
+      <!-- Color -->
+      <div class="field" style="margin-bottom:0;">
+        <label class="lbl">Accent Color <span class="req">*</span></label>
+        <div class="color-swatches" id="color-swatches"></div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:var(--muted);">Or pick custom:</span>
+          <input type="color" id="custom-color-input" value="#6366F1" style="width:36px;height:30px;padding:2px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;background:none;" oninput="onCustomColorPick(this.value)">
+          <span id="custom-hex-display" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">#6366F1</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeCatModal()">Cancel</button>
+      <button class="btn btn-pub btn-sm" onclick="saveCustomCategory()">✚ Add Category</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CATEGORY CONFIG ───────────────────────────────────────────────────────
+const CATS = {
+  mrm:     { emoji:'✅', label:'MRMG Milestone',       color:'var(--c-mrm)',     chip:'#D1FAE5', chipTxt:'#065F46' },
+  demo:    { emoji:'🎙️', label:'Office Hours / Demo',  color:'var(--c-demo)',    chip:'#DBEAFE', chipTxt:'#1E40AF' },
+  welcome: { emoji:'🤝', label:'Welcome to the Team',  color:'var(--c-welcome)', chip:'#FFEDD5', chipTxt:'#9A3412' },
+  learn:   { emoji:'🎓', label:'Training & Workshop',  color:'var(--c-learn)',   chip:'#F3E8FF', chipTxt:'#6B21A8' },
+  kudos:   { emoji:'🏆', label:'Team Kudos',           color:'var(--c-kudos)',   chip:'#FCE7F3', chipTxt:'#9F1239' },
+  event:   { emoji:'📅', label:'Event / Announcement', color:'var(--c-event)',   chip:'#E0F2FE', chipTxt:'#075985' },
+  update:  { emoji:'🔄', label:'Project Update',       color:'var(--c-update)',  chip:'#EEF2FF', chipTxt:'#3730A3' },
+  headsup: { emoji:'⚠️', label:'Heads Up',             color:'var(--c-headsup)', chip:'#FEE2E2', chipTxt:'#991B1B' },
+};
+
+let itemCount = 0;
+
+// ─── WEEK DATE INIT ───────────────────────────────────────────────────────
+const weekInp = document.getElementById('week-date');
+weekInp.valueAsDate = new Date();
+onWeekChange();
+
+function onWeekChange() {
+  const d = new Date(weekInp.value + 'T12:00:00');
+  if (isNaN(d)) return;
+  const diff = d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1);
+  const mon  = new Date(d.setDate(diff));
+  const label = 'Week of ' + mon.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  const wn = Math.ceil((((mon - new Date(mon.getFullYear(),0,1)) / 86400000) + new Date(mon.getFullYear(),0,1).getDay() + 1) / 7);
+  document.getElementById('week-pill-text').textContent = label;
+  document.getElementById('week-num').textContent       = 'W' + wn;
+  document.getElementById('edition-num').textContent    = wn;
+  document.getElementById('ed-archive').value           = label + ' — Edition #' + wn;
+  document.getElementById('lp-head').textContent        = '📰 DSI NEWS · WEEKLY UPDATE — ' + label.toUpperCase();
+  setCheck('cl-week', true);
+}
+
+// ─── ADD ITEM ─────────────────────────────────────────────────────────────
+function addItem() {
+  if (itemCount >= 5) { showToast('⚠️', 'Maximum 5 items per edition'); return; }
+  itemCount++;
+  const id = 'ni-' + itemCount;
+  const num = itemCount;
+
+  // Remove placeholder
+  const ph = document.getElementById('empty-placeholder');
+  if (ph) ph.remove();
+
+  const html = `
+  <div class="ni-card" id="${id}" data-cat="update">
+
+    <div class="ni-head" onclick="toggleItem('${id}')">
+      <span class="ni-drag" title="Drag to reorder">⠿</span>
+      <span class="ni-num">${num}</span>
+      <span class="ni-cat-badge" id="${id}-badge">🔄 PROJECT UPDATE</span>
+      <span class="ni-title-preview" id="${id}-preview"><em>Fill in title below…</em></span>
+      <span class="ni-chevron open" id="${id}-chev">▾</span>
+    </div>
+
+    <div class="ni-body" id="${id}-body">
+
+      <!-- ① CATEGORY ── the only selector needed -->
+      <div class="field">
+        <label class="lbl">Category <span class="req">*</span>
+          <span class="hint">Pick one — sets the card color and badge on the home page</span>
+        </label>
+        <div class="cat-grid">
+          <div class="cat-opt mrm">
+            <input type="radio" name="${id}-cat" id="${id}-c-mrm" value="mrm" onchange="onCatChange('${id}','mrm')">
+            <label class="cat-lbl" for="${id}-c-mrm"><span class="cat-emoji">✅</span><span class="cat-name">MRMG Milestone</span></label>
+          </div>
+          <div class="cat-opt demo">
+            <input type="radio" name="${id}-cat" id="${id}-c-demo" value="demo" onchange="onCatChange('${id}','demo')">
+            <label class="cat-lbl" for="${id}-c-demo"><span class="cat-emoji">🎙️</span><span class="cat-name">Office Hours</span></label>
+          </div>
+          <div class="cat-opt welcome">
+            <input type="radio" name="${id}-cat" id="${id}-c-welcome" value="welcome" onchange="onCatChange('${id}','welcome')">
+            <label class="cat-lbl" for="${id}-c-welcome"><span class="cat-emoji">🤝</span><span class="cat-name">Welcome</span></label>
+          </div>
+          <div class="cat-opt learn">
+            <input type="radio" name="${id}-cat" id="${id}-c-learn" value="learn" onchange="onCatChange('${id}','learn')">
+            <label class="cat-lbl" for="${id}-c-learn"><span class="cat-emoji">🎓</span><span class="cat-name">Training & Workshop</span></label>
+          </div>
+          <div class="cat-opt kudos">
+            <input type="radio" name="${id}-cat" id="${id}-c-kudos" value="kudos" onchange="onCatChange('${id}','kudos')">
+            <label class="cat-lbl" for="${id}-c-kudos"><span class="cat-emoji">🏆</span><span class="cat-name">Team Kudos</span></label>
+          </div>
+          <div class="cat-opt event">
+            <input type="radio" name="${id}-cat" id="${id}-c-event" value="event" onchange="onCatChange('${id}','event')">
+            <label class="cat-lbl" for="${id}-c-event"><span class="cat-emoji">📅</span><span class="cat-name">Event</span></label>
+          </div>
+          <div class="cat-opt update">
+            <input type="radio" name="${id}-cat" id="${id}-c-update" value="update" checked onchange="onCatChange('${id}','update')">
+            <label class="cat-lbl" for="${id}-c-update"><span class="cat-emoji">🔄</span><span class="cat-name">Project Update</span></label>
+          </div>
+          <div class="cat-opt headsup">
+            <input type="radio" name="${id}-cat" id="${id}-c-headsup" value="headsup" onchange="onCatChange('${id}','headsup')">
+            <label class="cat-lbl" for="${id}-c-headsup"><span class="cat-emoji">⚠️</span><span class="cat-name">Heads Up</span></label>
+          </div>
+          <span id="${id}-custom-cats"></span>
+          <div class="cat-opt add-custom">
+            <label class="cat-lbl" onclick="openCatModal('${id}')" style="cursor:pointer;">
+              <span class="cat-emoji" style="opacity:.6;">＋</span>
+              <span class="cat-name">New Category</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② CORE FIELDS ──────────────────────────────── -->
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">Item Title <span class="req">*</span></label>
+          <input type="text" id="${id}-title" maxlength="100" placeholder="Clear, specific headline — what happened?"
+            oninput="onTitleChange('${id}'); ccUpdate('${id}-title-cc', this.value, 100)">
+          <div class="char-meta"><span class="char-ct" id="${id}-title-cc">0/100</span></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Date Label <span class="req">*</span>
+            <span class="hint">e.g. "April 21, 2026" or "This Week"</span>
+          </label>
+          <input type="text" id="${id}-date" placeholder="April 21, 2026" oninput="onTitleChange('${id}')">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Body Text <span class="req">*</span>
+          <span class="hint">2–3 sentences. What happened and why it matters. Leads the card.</span>
+        </label>
+        <textarea id="${id}-body-txt" rows="3"
+          placeholder="e.g. Following recent enhancements to the model architecture, all MRMG documentation was successfully updated and submitted for approval."
+          oninput="onBodyChange('${id}')"></textarea>
+      </div>
+
+      <!-- ③ BULLETS ────────────────────────────────────── -->
+      <div class="field">
+        <label class="lbl">Bullet Points <span class="opt">Optional</span>
+          <span class="hint">Key highlights — use <b>bold label:</b> pattern e.g. "Impact: …" or "Kudos: …"</span>
+        </label>
+        <div class="bullet-list" id="${id}-bullets"></div>
+        <button class="add-bullet" onclick="addBullet('${id}-bullets')">＋ Add bullet point</button>
+      </div>
+
+      <!-- ④ CTA + EXTRAS ───────────────────────────────── -->
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">CTA Link Text <span class="opt">Optional</span></label>
+          <input type="text" placeholder="e.g. View project details →">
+        </div>
+        <div class="field">
+          <label class="lbl">CTA URL <span class="opt">Optional</span></label>
+          <input type="url" placeholder="https://... or blank to auto-link">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="lbl">Tagged People <span class="opt">Optional</span>
+            <span class="hint">Names bolded in body. Comma-separated.</span>
+          </label>
+          <input type="text" placeholder="e.g. Engin Karadag, Jason Casperson">
+        </div>
+        <div class="field">
+          <label class="lbl">DSI Vertical <span class="opt">Optional</span></label>
+          <select>
+            <option value="">— All / Team-Wide —</option>
+            <option>💰 Product & RMS</option>
+            <option>📈 Sales & Growth</option>
+            <option>⚙️ Ops & Efficiency</option>
+            <option>🔒 Risk & Compliance</option>
+            <option>👥 Customer & Insights</option>
+          </select>
+        </div>
+      </div>
+
+    </div><!-- end ni-body -->
+
+    <div class="ni-footer">
+      <button class="btn btn-ghost btn-sm" onclick="moveItem('${id}',-1)">🔼 Up</button>
+      <button class="btn btn-ghost btn-sm" onclick="moveItem('${id}',1)">🔽 Down</button>
+      <button class="btn btn-remove btn-sm" onclick="removeItem('${id}')" style="margin-left:auto;">🗑 Remove</button>
+    </div>
+
+  </div>`;
+
+  document.getElementById('items-container').insertAdjacentHTML('beforeend', html);
+
+  // Add live preview entry
+  const lpHtml = `
+  <div class="lp-item" data-cat="update" id="lp-${id}">
+    <span class="lp-chip" id="lp-${id}-chip" style="background:#EEF2FF;color:#3730A3;">🔄 PROJECT UPDATE</span>
+    <div class="lp-title-text" id="lp-${id}-title">—</div>
+    <div class="lp-body-text"  id="lp-${id}-body">Fill in body text…</div>
+    <div class="lp-date-text"  id="lp-${id}-date">—</div>
+  </div>`;
+  document.getElementById('lp-items-container').innerHTML = document.getElementById('lp-items-container').querySelector('div[style]')
+    ? lpHtml
+    : document.getElementById('lp-items-container').innerHTML + lpHtml;
+
+  // Clear the "no items" placeholder in lp
+  const noItems = document.querySelector('#lp-items-container div[style]');
+  if (noItems) noItems.remove();
+  document.getElementById('lp-items-container').insertAdjacentHTML('beforeend', lpHtml.trim().startsWith('<div class="lp-item"') ? '' : '');
+  rebuildLP();
+
+  updateItemCount();
+  syncChecklist();
+  document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+  showToast('✅', `News item ${num} added`);
+}
+
+// ─── CATEGORY CHANGE ──────────────────────────────────────────────────────
+function onCatChange(id, cat) {
+  const cfg = CATS[cat];
+  document.getElementById(id).dataset.cat = cat;
+  // Update header badge
+  const badge = document.getElementById(id + '-badge');
+  badge.textContent = cfg.emoji + ' ' + cfg.label.toUpperCase();
+  // Update LP
+  const lpItem = document.getElementById('lp-' + id);
+  if (lpItem) {
+    lpItem.dataset.cat = cat;
+    const lpChip = document.getElementById('lp-' + id + '-chip');
+    if (lpChip) { lpChip.style.background = cfg.chip; lpChip.style.color = cfg.chipTxt; lpChip.textContent = cfg.emoji + ' ' + cfg.label.toUpperCase(); }
+  }
+  syncChecklist();
+}
+
+// ─── TITLE CHANGE ─────────────────────────────────────────────────────────
+function onTitleChange(id) {
+  const t = document.getElementById(id + '-title')?.value || '';
+  const d = document.getElementById(id + '-date')?.value || '';
+  const prev = document.getElementById(id + '-preview');
+  if (prev) prev.innerHTML = t ? `${t} <em>— ${d || '—'}</em>` : `<em>Fill in title below…</em>`;
+  const lpt = document.getElementById('lp-' + id + '-title');
+  if (lpt) lpt.textContent = t || '—';
+  const lpd = document.getElementById('lp-' + id + '-date');
+  if (lpd) lpd.textContent = d || '—';
+  syncChecklist();
+}
+
+// ─── BODY CHANGE ──────────────────────────────────────────────────────────
+function onBodyChange(id) {
+  const txt = document.getElementById(id + '-body-txt')?.value || '';
+  const lpb = document.getElementById('lp-' + id + '-body');
+  if (lpb) lpb.textContent = txt.slice(0,70) + (txt.length > 70 ? '…' : '') || 'Fill in body text…';
+  syncChecklist();
+}
+
+// ─── REBUILD LP ───────────────────────────────────────────────────────────
+function rebuildLP() {
+  const lpc = document.getElementById('lp-items-container');
+  if (!lpc.querySelector('.lp-item')) {
+    lpc.innerHTML = `<div style="padding:14px;text-align:center;font-size:11px;color:var(--muted);">Add news items to see the preview</div>`;
+  }
+}
+
+// ─── CHAR COUNTER ─────────────────────────────────────────────────────────
+function ccUpdate(id, val, max) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const n = val.length;
+  el.textContent = n + '/' + max;
+  el.className = 'char-ct' + (n > max*.95 ? ' over' : n > max*.8 ? ' warn' : '');
+}
+
+// ─── BULLETS ──────────────────────────────────────────────────────────────
+function addBullet(listId) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'bullet-row';
+  row.innerHTML = `<span class="bullet-icon">▸</span><input type="text" placeholder="Add bullet point…"><button class="bullet-rm" onclick="this.closest('.bullet-row').remove()" type="button">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+// ─── TOGGLE COLLAPSE ──────────────────────────────────────────────────────
+function toggleItem(id) {
+  const body = document.getElementById(id + '-body');
+  const chev = document.getElementById(id + '-chev');
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  chev.classList.toggle('open', !open);
+}
+
+// ─── REMOVE ITEM ──────────────────────────────────────────────────────────
+function removeItem(id) {
+  const el = document.getElementById(id);
+  const lp = document.getElementById('lp-' + id);
+  if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(-8px)'; el.style.transition = 'all .22s'; setTimeout(() => { el.remove(); updateItemCount(); syncChecklist(); rebuildLP(); }, 220); }
+  if (lp) lp.remove();
+  rebuildLP();
+}
+
+// ─── MOVE ITEM ────────────────────────────────────────────────────────────
+function moveItem(id, dir) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (dir === -1 && el.previousElementSibling && el.previousElementSibling.classList.contains('ni-card')) {
+    el.parentNode.insertBefore(el, el.previousElementSibling);
+  } else if (dir === 1 && el.nextElementSibling && el.nextElementSibling.classList.contains('ni-card')) {
+    el.parentNode.insertBefore(el.nextElementSibling, el);
+  }
+}
+
+// ─── COUNT ────────────────────────────────────────────────────────────────
+function updateItemCount() {
+  const n = document.querySelectorAll('.ni-card').length;
+  document.getElementById('item-count').textContent = n + ' / 5 items';
+  return n;
+}
+
+// ─── CHECKLIST ────────────────────────────────────────────────────────────
+function syncChecklist() {
+  const title  = (document.getElementById('ed-title')?.value || '').trim().length > 0;
+  const author = (document.getElementById('ed-author')?.value || '').trim().length > 0;
+  const n = updateItemCount();
+  const cards = document.querySelectorAll('.ni-card');
+
+  let allCats = n > 0, allTitles = n > 0, allBodies = n > 0;
+  cards.forEach(c => {
+    const cid = c.id;
+    if (!document.querySelector(`input[name="${cid}-cat"]:checked`)) allCats = false;
+    if (!(document.getElementById(cid + '-title')?.value || '').trim()) allTitles = false;
+    if (!(document.getElementById(cid + '-body-txt')?.value || '').trim()) allBodies = false;
+  });
+
+  setCheck('cl-title',  title);
+  setCheck('cl-author', author);
+  setCheck('cl-items',  n >= 2);
+  setCheck('cl-cats',   allCats);
+  setCheck('cl-titles', allTitles);
+  setCheck('cl-bodies', allBodies);
+}
+
+function setCheck(id, done) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('done', done);
+  el.querySelector('.cl-icon').textContent = done ? '✓' : '○';
+}
+
+// ─── STATUS ───────────────────────────────────────────────────────────────
+function onStatusChange() {
+  const v = document.getElementById('ed-status').value;
+  const rs = document.getElementById('rail-status');
+  const rt = document.getElementById('rail-status-text');
+  rs.className = 'rail-status';
+  if (v === 'live') { rs.classList.add('rs-live'); rt.textContent = 'Live'; }
+  else              { rs.classList.add('rs-draft'); rt.textContent = v === 'review' ? 'In Review' : v === 'scheduled' ? 'Scheduled' : 'Draft'; }
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────
+function showToast(icon, msg) {
+  document.getElementById('t-icon').textContent = icon;
+  document.getElementById('t-msg').textContent  = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+  document.getElementById('last-saved').textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+function saveDraft()     { showToast('💾','Edition draft saved'); }
+function publishEdition() {
+  if (updateItemCount() < 2) { showToast('⚠️','Add at least 2 news items first'); return; }
+  showToast('🎉','Weekly edition published to DSI home page!');
+  document.getElementById('ed-status').value = 'live';
+  onStatusChange();
+}
+
+// ─── CUSTOM CATEGORY STATE ────────────────────────────────────────────────
+let customCats = {};  // { key: {emoji, label, color, chip, chipTxt} }
+let activeCatModalFor = null; // item id or null (global creation)
+let selectedEmoji = '✨';
+let selectedColor = '#6366F1';
+
+const EMOJI_POOL = ['✨','🌟','💎','🔥','🎯','🚀','💡','📢','🔬','🧩','🌐','📌','🗓','💬','🎤','🛡','⚙','📝','🏅','🎁','🌱','💰','🔑','📊','🤝','👁','⚡','🧠','📣','🎉'];
+const COLOR_POOL = [
+  { hex:'#6366F1', bg:'#EEF2FF', txt:'#3730A3' },
+  { hex:'#0891B2', bg:'#ECFEFF', txt:'#155E75' },
+  { hex:'#059669', bg:'#ECFDF5', txt:'#065F46' },
+  { hex:'#D97706', bg:'#FFFBEB', txt:'#92400E' },
+  { hex:'#DC2626', bg:'#FEF2F2', txt:'#991B1B' },
+  { hex:'#7C3AED', bg:'#F5F3FF', txt:'#4C1D95' },
+  { hex:'#DB2777', bg:'#FDF2F8', txt:'#831843' },
+  { hex:'#2563EB', bg:'#EFF6FF', txt:'#1E40AF' },
+  { hex:'#16A34A', bg:'#F0FDF4', txt:'#166534' },
+  { hex:'#9A3412', bg:'#FFF7ED', txt:'#7C2D12' },
+  { hex:'#0F766E', bg:'#F0FDFA', txt:'#134E4A' },
+  { hex:'#1D4ED8', bg:'#EFF6FF', txt:'#1E3A8A' },
+];
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return { r, g, b };
+}
+function lightenHex(hex, amount=0.88) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgb(${Math.round(r+(255-r)*amount)},${Math.round(g+(255-g)*amount)},${Math.round(b+(255-b)*amount)})`;
+}
+function darkenHex(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgb(${Math.round(r*.45)},${Math.round(g*.45)},${Math.round(b*.45)})`;
+}
+
+// ─── OPEN MODAL ───────────────────────────────────────────────────────────
+function openCatModal(itemId) {
+  activeCatModalFor = itemId;
+  selectedEmoji = '✨';
+  selectedColor = '#6366F1';
+
+  // reset form
+  document.getElementById('custom-cat-name').value = '';
+  document.getElementById('custom-name-cc').textContent = '0/28';
+  document.getElementById('custom-emoji-input').value = '';
+  document.getElementById('custom-color-input').value = '#6366F1';
+  document.getElementById('custom-hex-display').textContent = '#6366F1';
+
+  // build emoji grid
+  const eg = document.getElementById('emoji-grid');
+  eg.innerHTML = EMOJI_POOL.map(e =>
+    `<button class="emoji-btn${e==='✨'?' selected':''}" onclick="selectEmoji('${e}',this)" type="button">${e}</button>`
+  ).join('');
+
+  // build color swatches
+  const cs = document.getElementById('color-swatches');
+  cs.innerHTML = COLOR_POOL.map((c,i) =>
+    `<div class="swatch${i===0?' selected':''}" style="background:${c.hex};" title="${c.hex}" onclick="selectColor('${c.hex}','${c.bg}','${c.txt}',this)"></div>`
+  ).join('');
+
+  updateModalPreview();
+  document.getElementById('cat-modal').classList.add('open');
+  setTimeout(() => document.getElementById('custom-cat-name').focus(), 200);
+}
+
+function closeCatModal(e) {
+  if (e && e.target !== document.getElementById('cat-modal')) return;
+  document.getElementById('cat-modal').classList.remove('open');
+}
+
+// ─── MODAL INPUTS ─────────────────────────────────────────────────────────
+function onCustomCatInput() {
+  const v = document.getElementById('custom-cat-name').value;
+  const cc = document.getElementById('custom-name-cc');
+  cc.textContent = v.length + '/28';
+  cc.className = 'char-ct' + (v.length > 24 ? ' warn' : '');
+  updateModalPreview();
+}
+function selectEmoji(e, btn) {
+  selectedEmoji = e;
+  document.querySelectorAll('#emoji-grid .emoji-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('custom-emoji-input').value = '';
+  updateModalPreview();
+}
+function onCustomEmojiType(v) {
+  if (v.trim()) {
+    selectedEmoji = v.trim();
+    document.querySelectorAll('#emoji-grid .emoji-btn').forEach(b => b.classList.remove('selected'));
+    updateModalPreview();
+  }
+}
+function selectColor(hex, bg, txt, el) {
+  selectedColor = hex;
+  document.querySelectorAll('.color-swatches .swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('custom-color-input').value = hex;
+  document.getElementById('custom-hex-display').textContent = hex;
+  updateModalPreview();
+}
+function onCustomColorPick(hex) {
+  selectedColor = hex;
+  document.getElementById('custom-hex-display').textContent = hex;
+  document.querySelectorAll('.color-swatches .swatch').forEach(s => s.classList.remove('selected'));
+  updateModalPreview();
+}
+
+function updateModalPreview() {
+  const name = document.getElementById('custom-cat-name').value.trim() || 'My Category';
+  const bg = lightenHex(selectedColor);
+  const txt = darkenHex(selectedColor);
+
+  const tile = document.getElementById('modal-preview');
+  tile.style.borderColor = selectedColor;
+  tile.style.color = selectedColor;
+  tile.style.background = bg;
+  document.getElementById('modal-prev-emoji').textContent = selectedEmoji;
+  document.getElementById('modal-prev-name').textContent = name.length > 14 ? name.slice(0,14)+'…' : name;
+
+  const badge = document.getElementById('modal-badge-preview');
+  badge.style.background = bg;
+  badge.style.color = txt;
+  badge.textContent = selectedEmoji + ' ' + name.toUpperCase();
+}
+
+// ─── SAVE CUSTOM CATEGORY ─────────────────────────────────────────────────
+function saveCustomCategory() {
+  const name = document.getElementById('custom-cat-name').value.trim();
+  if (!name) { document.getElementById('custom-cat-name').focus(); showToast('⚠️','Please enter a category name'); return; }
+  if (!selectedEmoji) { showToast('⚠️','Please select an emoji'); return; }
+
+  const key = 'custom_' + Date.now();
+  const bg   = lightenHex(selectedColor);
+  const txt  = darkenHex(selectedColor);
+
+  // Register in CATS
+  customCats[key] = { emoji: selectedEmoji, label: name, color: selectedColor, chip: bg, chipTxt: txt };
+  CATS[key]       = { emoji: selectedEmoji, label: name, color: selectedColor, chip: bg, chipTxt: txt };
+
+  // Inject tile into every existing news item cat-grid
+  document.querySelectorAll('[id$="-custom-cats"]').forEach(slot => {
+    const itemId = slot.id.replace('-custom-cats','');
+    slot.insertAdjacentHTML('beforeend', buildCustomTileHTML(itemId, key, selectedEmoji, name, selectedColor, bg));
+  });
+
+  // Update sidebar
+  updateCustomCatsSidebar();
+
+  // If triggered from a specific item, auto-select this cat in that item
+  if (activeCatModalFor) {
+    setTimeout(() => {
+      const radio = document.getElementById(activeCatModalFor + '-c-' + key);
+      if (radio) { radio.checked = true; onCatChange(activeCatModalFor, key); }
+    }, 50);
+  }
+
+  closeCatModal();
+  showToast('🎨', `"${name}" category created!`);
+}
+
+function buildCustomTileHTML(itemId, key, emoji, label, color, bg) {
+  const shortLabel = label.length > 12 ? label.slice(0,12) + '…' : label;
+  return `<div class="cat-opt custom" id="${itemId}-opt-${key}"
+    style="--custom-color:${color};--custom-bg:${bg};">
+    <input type="radio" name="${itemId}-cat" id="${itemId}-c-${key}" value="${key}" onchange="onCatChange('${itemId}','${key}')">
+    <label class="cat-lbl" for="${itemId}-c-${key}">
+      <span class="cat-emoji">${emoji}</span>
+      <span class="cat-name">${shortLabel}</span>
+    </label>
+  </div>`;
+}
+
+function updateCustomCatsSidebar() {
+  const list = document.getElementById('custom-cats-sidebar-list');
+  const noMsg = document.getElementById('no-custom-cats-msg');
+  const keys = Object.keys(customCats);
+  if (!keys.length) {
+    if (noMsg) noMsg.style.display = '';
+    return;
+  }
+  if (noMsg) noMsg.style.display = 'none';
+  // rebuild
+  list.innerHTML = keys.map(k => {
+    const c = customCats[k];
+    return `<div class="custom-cat-row" id="sidebar-cat-${k}">
+      <span class="custom-cat-dot" style="background:${c.color};"></span>
+      <span class="custom-cat-label">${c.emoji} ${c.label}</span>
+      <button class="custom-cat-rm" onclick="removeCustomCat('${k}')" title="Remove category">×</button>
+    </div>`;
+  }).join('') + `<button class="add-bullet" style="margin-top:10px;" onclick="openCatModal(null)">＋ Create New Category</button>`;
+}
+
+function removeCustomCat(key) {
+  if (!confirm('Remove this custom category? It will be removed from all news items in this edition.')) return;
+  // Remove from CATS and customCats
+  delete CATS[key];
+  delete customCats[key];
+  // Remove tiles from all items
+  document.querySelectorAll(`[id$="-opt-${key}"]`).forEach(el => el.remove());
+  // If any item had this selected, reset to update
+  document.querySelectorAll('.ni-card').forEach(card => {
+    if (card.dataset.cat === key) {
+      card.dataset.cat = 'update';
+      const badge = document.getElementById(card.id + '-badge');
+      if (badge) badge.textContent = '🔄 PROJECT UPDATE';
+    }
+  });
+  updateCustomCatsSidebar();
+  showToast('🗑', 'Custom category removed');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+syncChecklist();
+setCheck('cl-week', true);
+setCheck('cl-vis',  true);
+setInterval(() => { document.getElementById('last-saved').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }, 30000);
+</script>
+</body>
+</html>
