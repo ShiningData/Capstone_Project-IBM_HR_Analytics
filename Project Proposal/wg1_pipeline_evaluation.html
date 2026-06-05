@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WG1 · EOB Pipeline Evaluation — On-Prem Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#ffffff; --bg2:#f8f9fb; --bg3:#f0f2f7;
+  --border:#e2e6ef; --border2:#cdd3e0;
+  --ink:#111827; --ink2:#374151; --ink3:#6b7280;
+  --navy:#0f2744; --navy2:#1a3a5c; --navy3:#2a5298;
+  --teal:#0d6e68; --teal2:#12a094; --teal3:#e0f4f3;
+  --amber:#c47200; --amber2:#f59e0b; --amber3:#fef3c7;
+  --red:#991b1b; --red2:#fee2e2;
+  --green:#166534; --green2:#dcfce7;
+  --purple:#5b21b6; --purple2:#ede9fe;
+  --blue:#1d4ed8; --blue2:#dbeafe;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Sora',sans-serif;
+  --r4:4px; --r6:6px; --r8:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:0 36px}
+
+/* NAV */
+.topnav{background:var(--navy);padding:11px 0;position:sticky;top:0;z-index:50;border-bottom:2px solid var(--teal2)}
+.topnav .wrap{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.topnav a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9bb4cc;text-decoration:none;padding:5px 10px;border-radius:var(--r4);transition:.15s}
+.topnav a:hover{background:rgba(255,255,255,.1);color:#fff}
+.topnav .sep{color:#2a4f6f;font-size:10px}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1c3c6e 100%);padding:60px 0 52px;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-120px;top:-80px;width:520px;height:520px;background:radial-gradient(circle,rgba(13,110,104,.28),transparent 68%);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;background:rgba(18,160,148,.18);border:1px solid rgba(18,160,148,.35);color:var(--teal2);padding:6px 14px;border-radius:20px;margin-bottom:22px}
+.badge::before{content:"●";font-size:8px;color:var(--teal2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.05;letter-spacing:-.02em;margin-bottom:14px}
+h1 span{color:var(--teal2)}
+.sub{font-size:17px;color:#99b4ca;font-weight:300;max-width:680px;line-height:1.55}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.meta-row span{font-family:var(--mono);font-size:11.5px;color:#7090aa;border:1px solid rgba(255,255,255,.12);padding:5px 12px;border-radius:var(--r4)}
+.meta-row strong{color:#c8dae8;font-weight:500}
+
+/* PIPELINE STRIP */
+.pipeline{background:var(--bg2);border-bottom:1px solid var(--border);padding:26px 0}
+.pipe-flow{display:flex;align-items:stretch;gap:0;overflow-x:auto}
+.pipe-step{flex:1;min-width:190px;padding:18px 20px;position:relative;cursor:default}
+.pipe-step:not(:last-child)::after{content:"›";position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--border2);z-index:2;font-weight:300}
+.pipe-step .num{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.pipe-step h4{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.pipe-step p{font-size:12px;color:var(--ink3);line-height:1.45}
+.pipe-step.s1{border-top:3px solid #f59e0b}.pipe-step.s1 .num{color:var(--amber)}
+.pipe-step.s2{border-top:3px solid var(--teal2)}.pipe-step.s2 .num{color:var(--teal)}
+.pipe-step.s3{border-top:3px solid var(--blue)}.pipe-step.s3 .num{color:var(--blue)}
+.pipe-step.s4{border-top:3px solid var(--purple)}.pipe-step.s4 .num{color:var(--purple)}
+
+/* SECTIONS */
+section{padding:56px 0;border-bottom:1px solid var(--border)}
+.sec-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:"";height:1px;flex:1;background:var(--border)}
+h2{font-size:clamp(26px,3.5vw,36px);font-weight:700;letter-spacing:-.02em;color:var(--navy);margin-bottom:8px;line-height:1.1}
+h3{font-size:20px;font-weight:600;color:var(--navy);margin:30px 0 12px;letter-spacing:-.01em}
+h4{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:22px 0 8px}
+p{margin-bottom:14px;color:var(--ink2);max-width:82ch}
+p.tight{max-width:74ch}
+
+/* CONSTRAINT CHIPS */
+.constraints{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 30px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:4px 12px;border-radius:20px;font-weight:500}
+.chip.g{background:var(--green2);color:var(--green)}
+.chip.r{background:var(--red2);color:var(--red)}
+.chip.b{background:var(--blue2);color:var(--blue)}
+.chip.p{background:var(--purple2);color:var(--purple)}
+.chip.a{background:var(--amber3);color:var(--amber)}
+
+/* STAGE BLOCKS */
+.stage{border:1px solid var(--border);border-radius:var(--r8);overflow:hidden;margin-bottom:48px}
+.stage-head{padding:20px 26px;display:flex;align-items:center;gap:18px}
+.stage-head .snum{font-family:var(--mono);font-size:28px;font-weight:600;min-width:42px;line-height:1}
+.stage-head .stxt h3{margin:0;font-size:22px}
+.stage-head .stxt p{margin:4px 0 0;font-size:14px;color:var(--ink3);max-width:none}
+.stage-body{padding:26px}
+.stage.s1 .stage-head{background:linear-gradient(135deg,#fffbf0,#fff8e6);border-bottom:1px solid #fde68a}
+.stage.s1 .stage-head .snum{color:var(--amber)}
+.stage.s2 .stage-head{background:linear-gradient(135deg,#f0fafa,#e6f7f6);border-bottom:1px solid #a7f3d0}
+.stage.s2 .stage-head .snum{color:var(--teal)}
+.stage.s3 .stage-head{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-bottom:1px solid #bfdbfe}
+.stage.s3 .stage-head .snum{color:var(--blue)}
+.stage.s4 .stage-head{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-bottom:1px solid #ddd6fe}
+.stage.s4 .stage-head .snum{color:var(--purple)}
+
+/* IO ROW */
+.io-row{display:grid;grid-template-columns:1fr 1px 1fr;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r6);overflow:hidden;margin-bottom:24px}
+.io-cell{padding:16px 20px}
+.io-cell h5{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.io-cell.in h5{color:var(--ink3)}
+.io-cell.out h5{color:var(--teal)}
+.io-cell ul{list-style:none;padding:0;margin:0}
+.io-cell li{font-size:13.5px;color:var(--ink2);padding-left:16px;position:relative;margin-bottom:5px}
+.io-cell li::before{content:"→";position:absolute;left:0;color:var(--ink3);font-size:11px;top:3px}
+.io-divider{background:var(--border);width:1px}
+
+/* TOOL GRID */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin:16px 0 26px}
+.tool-card{border:1px solid var(--border);border-radius:var(--r6);padding:18px 20px;background:#fff;position:relative}
+.tool-card.primary{border:2px solid var(--teal2);background:var(--teal3)}
+.tool-card.primary::after{content:"PRIMARY";position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;background:var(--teal2);color:#fff;padding:2px 7px;border-radius:20px}
+.tool-card.alt{border-color:var(--border2)}
+.tool-card.alt::after{content:"ALT";position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;background:var(--bg3);color:var(--ink3);padding:2px 7px;border-radius:20px}
+.tool-card .tname{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.tool-card .ttag{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:10px;display:block}
+.tool-card p{font-size:13.5px;color:var(--ink2);margin-bottom:0}
+.tool-card .badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tool-card .tb{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.tb.oss{background:var(--green2);color:var(--green)}
+.tb.com{background:var(--amber3);color:var(--amber)}
+.tb.gpu{background:var(--blue2);color:var(--blue)}
+.tb.cpu{background:var(--bg3);color:var(--ink3)}
+.tb.acc{background:var(--purple2);color:var(--purple)}
+
+/* ACCURACY TABLE */
+.acc-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--r6);overflow:hidden;font-size:13.5px;margin:16px 0 24px}
+.acc-table th{background:var(--navy);color:#e8eef5;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:10px 14px;text-align:left;font-weight:500}
+.acc-table td{padding:11px 14px;border-top:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+.acc-table tr:nth-child(even) td{background:var(--bg2)}
+.acc-table td:first-child{font-weight:600;color:var(--navy);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px}
+.bar-fill{height:8px;border-radius:4px;min-width:6px}
+.bar span{font-family:var(--mono);font-size:12px;white-space:nowrap;font-weight:500}
+.level-h{background:#166534}.level-m{background:#ca8a04}.level-l{background:#dc2626}
+.star{color:#f59e0b;font-size:14px}
+.rec-badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;vertical-align:middle;margin-left:6px}
+.rec-badge.yes{background:var(--green2);color:var(--green)}
+.rec-badge.no{background:var(--red2);color:var(--red)}
+.rec-badge.cond{background:var(--amber3);color:var(--amber)}
+
+/* FLOW BOX */
+.flow-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r6);padding:20px 24px;margin:18px 0}
+.flow-box h5{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+.flow-steps{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fstep{background:#fff;border:1px solid var(--border2);border-radius:var(--r4);padding:8px 14px;font-size:13px;font-weight:500;color:var(--ink)}
+.fstep.hi{background:var(--teal3);border-color:#9de2dc;color:var(--teal)}
+.fstep.ex{background:var(--amber3);border-color:#fcd34d;color:var(--amber)}
+.farrow{color:var(--border2);font-size:16px;font-weight:300}
+
+/* CONF BOX */
+.conf-box{border:1px solid var(--border);border-radius:var(--r6);overflow:hidden;margin:18px 0}
+.conf-box .conf-head{background:var(--bg3);padding:10px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--border)}
+.conf-rows{padding:0 18px}
+.conf-row{display:grid;grid-template-columns:120px 1fr 90px;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:center}
+.conf-row:last-child{border-bottom:none}
+.conf-row .label{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy)}
+.conf-row .track{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;flex:1}
+.conf-row .fill{height:100%;border-radius:5px}
+.conf-row .action{font-size:12px;font-weight:600;text-align:right}
+.high-conf .fill{background:var(--green);width:90%}.high-conf .action{color:var(--green)}
+.med-conf .fill{background:var(--amber2);width:62%}.med-conf .action{color:var(--amber)}
+.low-conf .fill{background:#dc2626;width:30%}.low-conf .action{color:var(--red)}
+
+/* CODE */
+pre{background:var(--navy);color:#d6e4f0;font-family:var(--mono);font-size:12.5px;padding:18px 22px;border-radius:var(--r6);overflow-x:auto;margin:14px 0}
+pre .cm{color:#4d6a80;font-style:italic}
+pre .kw{color:#7dd3fc}
+pre .st{color:#86efac}
+pre .fn{color:#c4b5fd}
+pre .nu{color:#fca5a5}
+pre .va{color:#fde68a}
+
+/* CALLOUT */
+.callout{border-radius:var(--r6);padding:18px 22px;margin:20px 0;border-left:3px solid}
+.callout.info{background:var(--blue2);border-color:var(--blue)}.callout.info .ct{color:var(--blue)}
+.callout.warn{background:var(--amber3);border-color:var(--amber)}.callout.warn .ct{color:var(--amber)}
+.callout.good{background:var(--green2);border-color:var(--green)}.callout.good .ct{color:var(--green)}
+.callout.risk{background:var(--red2);border-color:var(--red)}.callout.risk .ct{color:var(--red)}
+.callout .ct{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;display:block;margin-bottom:6px}
+.callout p{margin:0;font-size:14px;max-width:none}
+
+/* TWO COL */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:800px){.g2,.g3{grid-template-columns:1fr}}
+
+/* LIST */
+ul.check{list-style:none;padding:0;margin:8px 0 16px}
+ul.check li{padding-left:22px;position:relative;margin-bottom:8px;font-size:14.5px;color:var(--ink2)}
+ul.check li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700;font-size:12px;top:2px}
+ul.warn-list{list-style:none;padding:0;margin:8px 0 16px}
+ul.warn-list li{padding-left:22px;position:relative;margin-bottom:8px;font-size:14.5px;color:var(--ink2)}
+ul.warn-list li::before{content:"⚠";position:absolute;left:0;color:var(--amber);font-size:12px;top:2px}
+
+/* SUMMARY TABLE */
+.sum-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--r8);overflow:hidden;font-size:13.5px;margin:20px 0}
+.sum-table th{background:var(--navy);color:#e8eef5;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;text-align:left;font-weight:500}
+.sum-table td{padding:12px 16px;border-top:1px solid var(--border);color:var(--ink2);vertical-align:top}
+.sum-table tr:nth-child(even) td{background:var(--bg2)}
+.sum-table td:first-child{font-weight:600;color:var(--navy);white-space:nowrap;font-size:13px}
+code{font-family:var(--mono);font-size:.85em;background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--navy2);border:1px solid var(--border)}
+
+footer{background:var(--navy);color:#6080a0;padding:36px 0;font-family:var(--mono);font-size:12px;margin-top:0}
+footer b{color:#abc}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a href="#overview">Overview</a><span class="sep">·</span>
+    <a href="#s1">S1 · MICR Exclusion</a><span class="sep">·</span>
+    <a href="#s2">S2 · Digitization</a><span class="sep">·</span>
+    <a href="#s3">S3 · Classification</a><span class="sep">·</span>
+    <a href="#s4">S4 · Payer Extraction</a><span class="sep">·</span>
+    <a href="#summary">Stack Summary</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">Working Group 1 · Target 6/15</div>
+    <h1>EOB Initial Pipeline<br><span>On-Premises Stack Evaluation</span></h1>
+    <p class="sub">Tool, technique, and technology recommendations for Stages 1–4: MICR Exclusion, Digitization, Classification, and Payer Name Extraction — all deployable on-prem, no cloud dependency.</p>
+    <div class="meta-row">
+      <span>Lead <strong>Ahmed</strong></span>
+      <span>Team <strong>Engin · Krishna · Surya</strong></span>
+      <span>Scope <strong>Stages 1–4 only</strong></span>
+      <span>Quality target <strong>90%+ output accuracy</strong></span>
+      <span>PHI constraint <strong>No off-prem storage</strong></span>
+    </div>
+  </div>
+</header>
+
+<!-- PIPELINE OVERVIEW STRIP -->
+<div class="pipeline">
+  <div class="wrap">
+    <div class="pipe-flow">
+      <div class="pipe-step s1">
+        <div class="num">Stage 1</div>
+        <h4>MICR Exclusion</h4>
+        <p>Read check routing/account numbers, match against exclusion DB, drop ~50% of volume</p>
+      </div>
+      <div class="pipe-step s2">
+        <div class="num">Stage 2</div>
+        <h4>Digitization</h4>
+        <p>OCR image → text with preserved layout, word-level confidence, route light vs. heavy</p>
+      </div>
+      <div class="pipe-step s3">
+        <div class="num">Stage 3</div>
+        <h4>Classification</h4>
+        <p>Distinguish EOBs, checks, summaries, blanks, correspondence — confidence-routed</p>
+      </div>
+      <div class="pipe-step s4">
+        <div class="num">Stage 4</div>
+        <h4>Payer Extraction</h4>
+        <p>Extract payer name, normalize, fuzzy-match client list, second exclusion pass</p>
+      </div>
+      <div class="pipe-step" style="flex:.5;border-top:3px solid var(--border2)">
+        <div class="num" style="color:var(--ink3)">→ WG2</div>
+        <h4 style="color:var(--ink3)">LLM Extraction</h4>
+        <p>Handed off to Working Group 2</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--ink3)">Design constraints</div>
+    <h2>Guiding constraints for every stage</h2>
+    <p class="tight">Every technology recommendation below was filtered against the constraints confirmed at the 6/3 session. Any tool that fails one of these is excluded regardless of accuracy.</p>
+    <div class="constraints">
+      <span class="chip r">No cloud storage of PHI</span>
+      <span class="chip r">No unapproved external vendors</span>
+      <span class="chip g">Open-source strongly preferred</span>
+      <span class="chip g">PNC-controlled infrastructure</span>
+      <span class="chip b">Confidence score at every step</span>
+      <span class="chip b">Interchangeable / swappable models</span>
+      <span class="chip a">Must preserve payer normalization</span>
+      <span class="chip p">GPU on-prem available (NVIDIA)</span>
+    </div>
+
+    <div class="callout info">
+      <span class="ct">On cloud vs. on-prem reading</span>
+      <p>The team confirmed that <strong>sending data out for reading and returning results is acceptable</strong>, but <strong>storing PHI off-prem is not</strong>. However, the team's stated preference is to keep everything inside PNC-controlled systems when an equivalent on-prem solution is available at similar cost. This evaluation assumes full on-prem deployment. Cloud-read-only fallback options are noted where there is a meaningful accuracy gap.</p>
+    </div>
+
+    <div class="callout good">
+      <span class="ct">Architecture principle — interchangeable models</span>
+      <p>The orchestration layer must abstract which OCR engine or model is called. Whether the team uses PaddleOCR today and switches to a fine-tuned on-prem model tomorrow, the pipeline code should only change a config value — not application logic. Every stage below is designed with this modularity in mind.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAGE 1 ===== -->
+<section id="s1">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--amber)">Stage 1 · MICR Exclusion</div>
+    <div class="stage s1">
+      <div class="stage-head">
+        <span class="snum">01</span>
+        <div class="stxt">
+          <h3>MICR-Line Based Exclusion</h3>
+          <p>Read routing/account numbers from check MICR line → match against exclusion DB → drop Direct-835 payers and client opt-outs before any further processing</p>
+        </div>
+      </div>
+      <div class="stage-body">
+
+        <div class="io-row">
+          <div class="io-cell in">
+            <h5>Input</h5>
+            <ul>
+              <li>Full-resolution lockbox image (no downgrade)</li>
+              <li>Deposit metadata file from lockbox system</li>
+              <li>Exclusion database (Direct-835 payers, client opt-outs)</li>
+            </ul>
+          </div>
+          <div class="io-divider"></div>
+          <div class="io-cell out">
+            <h5>Output</h5>
+            <ul>
+              <li>Excluded batch list → exclusions queue + report</li>
+              <li>Non-excluded images + metadata → Stage 2</li>
+              <li>Confidence flag per batch (MICR matched / not found)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Why MICR is the right first gate</h3>
+        <p>MICR recognition is deterministic — the E-13B and CMC-7 fonts are standardized, machine-readable, and designed for high-reliability scanning. Getting ~50% of volume out of the pipeline at this stage with near-zero false positives is the single highest-leverage cost saving in the whole flow. It also keeps unusable documents away from the expensive LLM stages.</p>
+
+        <h3>Recommended primary stack</h3>
+        <div class="tool-grid">
+          <div class="tool-card primary">
+            <div class="tname">Tesseract 5.x + MICR Font</div>
+            <span class="ttag">Google — Apache 2.0 — On-prem</span>
+            <p>Tesseract ships with built-in E-13B MICR recognition. Paired with OpenCV preprocessing (crop MICR band, binarize, enhance contrast), it achieves 97–99% character-level accuracy on clean lockbox scans. Runs on CPU — no GPU required for this stage.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb cpu">CPU only</span>
+              <span class="tb acc">~98% on MICR</span>
+            </div>
+          </div>
+          <div class="tool-card primary">
+            <div class="tname">OpenCV 4.x</div>
+            <span class="ttag">Intel — Apache 2.0 — On-prem</span>
+            <p>Handles all image preprocessing before Tesseract: crop MICR zone (bottom 15% of check image), convert to binary, deskew, enhance contrast. Essential companion to Tesseract. Also handles blank-page detection (pixel variance threshold) as a zero-cost pre-filter.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb cpu">CPU only</span>
+            </div>
+          </div>
+          <div class="tool-card alt">
+            <div class="tname">LEADTOOLS MICR SDK</div>
+            <span class="ttag">LEAD Technologies — Commercial — On-prem</span>
+            <p>Purpose-built commercial MICR recognition with 99%+ accuracy and built-in E-13B + CMC-7 support. Justified only if Tesseract accuracy on PNC's specific lockbox scan quality falls below threshold. Requires commercial license approval.</p>
+            <div class="badges">
+              <span class="tb com">Commercial</span>
+              <span class="tb cpu">CPU only</span>
+              <span class="tb acc">~99.5% on MICR</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Accuracy benchmarks</h3>
+        <table class="acc-table">
+          <tr><th>Tool</th><th>MICR Char Accuracy</th><th>Layout</th><th>License</th><th>Verdict</th></tr>
+          <tr>
+            <td>Tesseract 5 + OpenCV</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:96px"></div><span>97–99%</span></div></td>
+            <td>MICR zone crop</td>
+            <td>Apache 2.0</td>
+            <td><span class="rec-badge yes">Recommend</span></td>
+          </tr>
+          <tr>
+            <td>LEADTOOLS MICR SDK</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:102px"></div><span>99.5%</span></div></td>
+            <td>Native</td>
+            <td>Commercial</td>
+            <td><span class="rec-badge cond">If needed</span></td>
+          </tr>
+          <tr>
+            <td>Dynamsoft Barcode+MICR</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:98px"></div><span>98–99%</span></div></td>
+            <td>Zone-based</td>
+            <td>Commercial</td>
+            <td><span class="rec-badge no">Overkill</span></td>
+          </tr>
+        </table>
+
+        <h3>Confidence routing logic</h3>
+        <div class="conf-box">
+          <div class="conf-head">MICR confidence → routing decision</div>
+          <div class="conf-rows">
+            <div class="conf-row high-conf">
+              <span class="label">High ≥ 0.95</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Auto-route ✓</span>
+            </div>
+            <div class="conf-row med-conf">
+              <span class="label">Medium 0.75–0.95</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Flag for review</span>
+            </div>
+            <div class="conf-row low-conf">
+              <span class="label">Low &lt; 0.75</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Exception queue</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Database matching technique</h3>
+        <div class="flow-box">
+          <h5>MICR match → exclusion lookup flow</h5>
+          <div class="flow-steps">
+            <div class="fstep">Extract routing #</div><span class="farrow">›</span>
+            <div class="fstep">Extract acct #</div><span class="farrow">›</span>
+            <div class="fstep hi">SQL exact match vs. exclusion DB</div><span class="farrow">›</span>
+            <div class="fstep ex">Match → exclude</div><span class="farrow">›</span>
+            <div class="fstep">No match → Stage 2</div>
+          </div>
+        </div>
+
+<pre><span class="cm"># MICR Extraction + Exclusion — core logic</span>
+<span class="kw">import</span> cv2, pytesseract, sqlalchemy
+
+<span class="kw">def</span> <span class="fn">extract_micr</span>(img_path: <span class="va">str</span>) -> <span class="va">dict</span>:
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    h, w = img.shape
+    <span class="cm"># Crop bottom 12% — MICR zone</span>
+    micr_zone = img[<span class="kw">int</span>(h * <span class="nu">0.88</span>):, :]
+    <span class="cm"># Binarize + enhance contrast</span>
+    _, binary = cv2.threshold(micr_zone, <span class="nu">0</span>, <span class="nu">255</span>, cv2.THRESH_OTSU)
+    <span class="cm"># Tesseract with MICR E-13B config</span>
+    cfg = <span class="st">"--oem 1 --psm 7 -l MICR"</span>
+    result = pytesseract.image_to_data(binary, config=cfg,
+                                       output_type=pytesseract.Output.DICT)
+    routing = <span class="fn">parse_routing</span>(result[<span class="st">'text'</span>])
+    confidence = <span class="fn">min</span>(result[<span class="st">'conf'</span>]) / <span class="nu">100.0</span>
+    <span class="kw">return</span> {<span class="st">"routing"</span>: routing, <span class="st">"conf"</span>: confidence}
+
+<span class="kw">def</span> <span class="fn">check_exclusion</span>(routing: <span class="va">str</span>, acct: <span class="va">str</span>, db) -> <span class="va">bool</span>:
+    <span class="kw">return</span> db.execute(
+        <span class="st">"SELECT 1 FROM exclusion_rules WHERE routing=:r AND acct=:a"</span>,
+        {<span class="st">"r"</span>: routing, <span class="st">"a"</span>: acct}).fetchone() <span class="kw">is not None</span></pre>
+
+        <div class="callout good">
+          <span class="ct">Performance note</span>
+          <p>MICR extraction is CPU-only and extremely fast — expect &lt;50ms per image on a standard server. This stage can process the full daily volume (~10K batches) in under 10 minutes with a pool of 4 CPU workers, providing immediate volume relief before any GPU resources are consumed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAGE 2 ===== -->
+<section id="s2">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--teal2)">Stage 2 · Digitization</div>
+    <div class="stage s2">
+      <div class="stage-head">
+        <span class="snum">02</span>
+        <div class="stxt">
+          <h3>Digitization (OCR with Layout Preservation)</h3>
+          <p>Convert lockbox images to structured text, preserving column positions, table boundaries, and line relationships — with word-level confidence scores for downstream routing</p>
+        </div>
+      </div>
+      <div class="stage-body">
+
+        <div class="io-row">
+          <div class="io-cell in">
+            <h5>Input</h5>
+            <ul>
+              <li>Full-resolution EOB image (color, no downgrade)</li>
+              <li>Complexity routing signal (from pre-analysis)</li>
+            </ul>
+          </div>
+          <div class="io-divider"></div>
+          <div class="io-cell out">
+            <h5>Output</h5>
+            <ul>
+              <li>Structured text with bounding-box positions (hOCR / JSON)</li>
+              <li>Per-word confidence scores</li>
+              <li>Table structures preserved (rows × columns)</li>
+              <li>Document complexity score → routing signal</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Routing: lightweight vs. full OCR</h3>
+        <p>The team confirmed two routing paths: straightforward text-heavy documents get lightweight OCR (fast, cheap); complex tabular/layout-heavy documents go to a full layout-aware OCR engine. The routing decision is made using a complexity pre-assessment before calling either engine.</p>
+
+        <div class="flow-box">
+          <h5>Complexity routing logic</h5>
+          <div class="flow-steps">
+            <div class="fstep">Image in</div><span class="farrow">›</span>
+            <div class="fstep">Pre-assess complexity<br><small style="font-size:11px;color:#6b7280">(pixel density · table detector)</small></div><span class="farrow">›</span>
+            <div class="fstep hi">Simple text → Tesseract 5 (fast path)</div><span class="farrow">›</span>
+            <div class="fstep hi">Complex/tabular → PaddleOCR + PPStructure</div><span class="farrow">›</span>
+            <div class="fstep">Structured JSON + confidence</div>
+          </div>
+        </div>
+
+        <h3>Recommended primary stack</h3>
+        <div class="tool-grid">
+          <div class="tool-card primary">
+            <div class="tname">PaddleOCR v4 + PPStructure</div>
+            <span class="ttag">Baidu — Apache 2.0 — On-prem · GPU</span>
+            <p>State-of-the-art open-source OCR with a dedicated <strong>PPStructure</strong> module for table detection, table structure recognition, and layout analysis. Returns word-level confidence scores natively. GPU-accelerated inference on NVIDIA hardware. Best fit for the complex multi-column, tabular EOBs that make up the hard portion of the volume. The team explicitly named this tool.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb gpu">GPU accelerated</span>
+              <span class="tb acc">~98–99% printed</span>
+            </div>
+          </div>
+          <div class="tool-card primary">
+            <div class="tname">Tesseract 5.x (LSTM)</div>
+            <span class="ttag">Google — Apache 2.0 — On-prem · CPU</span>
+            <p>Excellent for the lightweight text-only path. Fast on CPU, word-level confidence via <code>image_to_data()</code>, minimal infrastructure overhead. Route here first — if confidence &gt;0.92 on all text blocks, no need to call the heavier engine. Serves as the fast path for the majority of simpler EOBs.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb cpu">CPU path</span>
+              <span class="tb acc">~93–96% on scanned</span>
+            </div>
+          </div>
+          <div class="tool-card alt">
+            <div class="tname">docTR (Mindee)</div>
+            <span class="ttag">Mindee — Apache 2.0 — On-prem · GPU/CPU</span>
+            <p>Deep-learning OCR pipeline built on PyTorch/TensorFlow. Strong on complex document layouts. Good alternative if PaddleOCR has licensing concerns in PNC's procurement process. Returns confidence per word and supports custom model fine-tuning on EOB data.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb gpu">GPU/CPU</span>
+              <span class="tb acc">~93–97%</span>
+            </div>
+          </div>
+          <div class="tool-card alt">
+            <div class="tname">ABBYY FineReader Engine</div>
+            <span class="ttag">ABBYY — Commercial — On-prem</span>
+            <p>Industry-leading commercial OCR with exceptional table/form recognition and the highest accuracy on poor-quality scans. On-prem license available. Best-in-class for edge cases (low DPI, complex layouts). Justified as a targeted fallback for the hardest documents if open-source accuracy falls below 90% on that subset.</p>
+            <div class="badges">
+              <span class="tb com">Commercial</span>
+              <span class="tb gpu">GPU/CPU</span>
+              <span class="tb acc">~99% industry-leading</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Accuracy benchmarks</h3>
+        <table class="acc-table">
+          <tr><th>Engine</th><th>Printed Text</th><th>Complex Tables</th><th>Layout Preserve</th><th>Confidence Score</th><th>Verdict</th></tr>
+          <tr>
+            <td>PaddleOCR v4 + PPStructure</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:98px"></div><span>98–99%</span></div></td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:94px"></div><span>94–97%</span></div></td>
+            <td>✓ Word + cell bbox</td>
+            <td>✓ Per word logprob</td>
+            <td><span class="rec-badge yes">Primary Heavy</span></td>
+          </tr>
+          <tr>
+            <td>Tesseract 5.x LSTM</td>
+            <td><div class="bar"><div class="bar-fill level-m" style="width:93px"></div><span>93–96%</span></div></td>
+            <td><div class="bar"><div class="bar-fill level-m" style="width:78px"></div><span>78–85%</span></div></td>
+            <td>✓ hOCR bbox</td>
+            <td>✓ Per word %</td>
+            <td><span class="rec-badge yes">Primary Light</span></td>
+          </tr>
+          <tr>
+            <td>docTR</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:95px"></div><span>95–97%</span></div></td>
+            <td><div class="bar"><div class="bar-fill level-m" style="width:88px"></div><span>88–92%</span></div></td>
+            <td>✓ Word bbox</td>
+            <td>✓ Per word</td>
+            <td><span class="rec-badge cond">Alt if needed</span></td>
+          </tr>
+          <tr>
+            <td>ABBYY FineReader Engine</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:102px"></div><span>99%+</span></div></td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:98px"></div><span>97–99%</span></div></td>
+            <td>✓ Full layout XML</td>
+            <td>✓ Per char/word</td>
+            <td><span class="rec-badge cond">Fallback edge cases</span></td>
+          </tr>
+          <tr>
+            <td>EasyOCR</td>
+            <td><div class="bar"><div class="bar-fill level-m" style="width:88px"></div><span>88–92%</span></div></td>
+            <td><div class="bar"><div class="bar-fill level-l" style="width:72px"></div><span>70–78%</span></div></td>
+            <td>Partial</td>
+            <td>✓ Per word</td>
+            <td><span class="rec-badge no">Not recommended</span></td>
+          </tr>
+        </table>
+
+        <h3>Complexity pre-assessment (pre-OCR routing)</h3>
+        <p>Before calling either OCR engine, a fast pre-assessment classifies the document complexity. This is CPU-only, &lt;10ms, and determines which OCR path to invoke.</p>
+
+<pre><span class="cm"># Complexity router — decides OCR path before calling engine</span>
+<span class="kw">import</span> cv2, numpy <span class="kw">as</span> np
+<span class="kw">from</span> pdfminer.high_level <span class="kw">import</span> extract_pages
+
+<span class="kw">def</span> <span class="fn">assess_complexity</span>(img: np.ndarray) -> <span class="va">str</span>:
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    <span class="cm"># Edge density — high edge = complex tables/lines</span>
+    edges = cv2.Canny(gray, <span class="nu">50</span>, <span class="nu">150</span>)
+    edge_ratio = np.count_nonzero(edges) / edges.size
+    <span class="cm"># Horizontal line density (table indicators)</span>
+    h_lines = cv2.HoughLinesP(edges, <span class="nu">1</span>, np.pi/<span class="nu">180</span>,
+                               threshold=<span class="nu">100</span>, minLineLength=<span class="nu">50</span>)
+    line_count = <span class="kw">len</span>(h_lines) <span class="kw">if</span> h_lines <span class="kw">is not None else</span> <span class="nu">0</span>
+    <span class="kw">if</span> edge_ratio > <span class="nu">0.08</span> <span class="kw">or</span> line_count > <span class="nu">20</span>:
+        <span class="kw">return</span> <span class="st">"complex"</span>  <span class="cm"># → PaddleOCR + PPStructure</span>
+    <span class="kw">return</span> <span class="st">"simple"</span>       <span class="cm"># → Tesseract (fast path)</span></pre>
+
+        <div class="callout warn">
+          <span class="ct">IBM on-prem alternative</span>
+          <p>The team mentioned <strong>IBM Datacap / Content Collector</strong> as a potential on-prem alternative that may outperform Microsoft Foundry. This is worth evaluating in the regression test suite described in the meeting notes. IBM Datacap is enterprise-licensed but deploys fully on-prem and has strong table and healthcare form handling. Include it in the 6/15 regression comparison alongside PaddleOCR and Tesseract.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAGE 3 ===== -->
+<section id="s3">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--blue)">Stage 3 · Classification</div>
+    <div class="stage s3">
+      <div class="stage-head">
+        <span class="snum">03</span>
+        <div class="stxt">
+          <h3>Document Classification</h3>
+          <p>Distinguish EOBs, checks, summaries, blank pages, and correspondence — with confidence-scored output. High-confidence classifications route automatically; low-confidence batches queue for human review.</p>
+        </div>
+      </div>
+      <div class="stage-body">
+
+        <div class="io-row">
+          <div class="io-cell in">
+            <h5>Input</h5>
+            <ul>
+              <li>OCR output (text + bounding boxes from Stage 2)</li>
+              <li>Original image (for visual classifiers)</li>
+            </ul>
+          </div>
+          <div class="io-divider"></div>
+          <div class="io-cell out">
+            <h5>Output</h5>
+            <ul>
+              <li>Per-page type label: EOB / Check / Summary / Blank / Correspondence / Unknown</li>
+              <li>Confidence score per page</li>
+              <li>Page ordering signal (semantic continuity)</li>
+              <li>Low-confidence → exception queue</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Recommended approach: 3-tier classifier</h3>
+        <p>Not all pages need the same classifier. A tiered approach uses the cheapest possible method at each level and only escalates to the model when rules are insufficient. This maximizes throughput and minimizes compute cost.</p>
+
+        <div class="flow-box">
+          <h5>3-tier classification logic (cheapest first)</h5>
+          <div class="flow-steps">
+            <div class="fstep hi">Tier 1: Rules<br><small style="font-size:10px;color:var(--teal)">Blank · Check · Obvious</small></div><span class="farrow">›</span>
+            <div class="fstep hi">Tier 2: Text-based ML<br><small style="font-size:10px;color:var(--teal)">TF-IDF + LogReg on OCR text</small></div><span class="farrow">›</span>
+            <div class="fstep hi">Tier 3: Visual DL<br><small style="font-size:10px;color:var(--teal)">DiT / LayoutLMv3 (GPU)</small></div><span class="farrow">›</span>
+            <div class="fstep ex">Low conf → Exception queue</div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div>
+            <h4>Tier 1 — Rule-based (CPU, &lt;1ms)</h4>
+            <ul class="check">
+              <li><strong>Blank page:</strong> pixel variance &lt; threshold OR text density &lt; 2% (OpenCV)</li>
+              <li><strong>Check:</strong> MICR line detected in Stage 1 = already known</li>
+              <li><strong>Obvious EOB:</strong> header keywords present ("Explanation of Payment", "Remittance", payer logo zone + claim table)</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Tier 2 — Lightweight ML (CPU, ~5ms)</h4>
+            <ul class="check">
+              <li><strong>TF-IDF vectorizer + Logistic Regression</strong> on OCR text (scikit-learn, ~97% on trained corpus)</li>
+              <li>Feature: top-N keywords per class (payer terms, claim terms, balance terms)</li>
+              <li>Train on labeled historical batches — the team has years of processed documents</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Tier 3 — Visual / layout-aware deep learning</h3>
+        <p>For documents that pass through Tiers 1 and 2 without a high-confidence label, use a fine-tuned layout-aware model. These handle the ambiguous cases — correspondence that looks like an EOB, multi-page summaries, etc.</p>
+
+        <div class="tool-grid">
+          <div class="tool-card primary">
+            <div class="tname">DiT (Document Image Transformer)</div>
+            <span class="ttag">Microsoft — CC BY-NC-SA 4.0 — On-prem · GPU</span>
+            <p>Pre-trained on 42M document images (IIT-CDIP), fine-tunable on custom classes. Achieves 97–99% on standard document classification benchmarks. Takes the page image as input — no OCR required — which makes it independent of OCR quality. Key advantage: fine-tune on your labeled EOB history, not a generic corpus.</p>
+            <div class="badges">
+              <span class="tb oss">Research license (check PNC)</span>
+              <span class="tb gpu">GPU required</span>
+              <span class="tb acc">97–99% fine-tuned</span>
+            </div>
+          </div>
+          <div class="tool-card primary">
+            <div class="tname">LayoutLMv3</div>
+            <span class="ttag">Microsoft — CC BY-NC-SA 4.0 — On-prem · GPU</span>
+            <p>Joint encoding of text tokens, image patches, and 2D position (bounding boxes). The strongest model when you want to do classification <strong>and</strong> payer-name extraction in a single forward pass — eliminating one model call per document. Best accuracy on documents where text meaning and layout position together determine the class.</p>
+            <div class="badges">
+              <span class="tb oss">Research license (check PNC)</span>
+              <span class="tb gpu">GPU required</span>
+              <span class="tb acc">93–97% on RVL-CDIP</span>
+            </div>
+          </div>
+          <div class="tool-card alt">
+            <div class="tname">EfficientNet-B4 (fine-tuned)</div>
+            <span class="ttag">Google — Apache 2.0 — On-prem · GPU</span>
+            <p>Pure visual CNN classifier. Simpler to train, lower memory footprint than transformer models. Good baseline if PNC's labeled dataset is small (&lt;1K examples) and the classes are visually distinct. Less effective when document type differences are purely semantic (text-level) rather than visual.</p>
+            <div class="badges">
+              <span class="tb oss">Open Source</span>
+              <span class="tb gpu">GPU</span>
+              <span class="tb acc">90–95% visual</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Training data strategy</h3>
+        <div class="callout good">
+          <span class="ct">Use existing labeled history — immediately</span>
+          <p>The team has years of processed batches where operators assigned form families and resolved categorization exceptions. This is already labeled training data. Even a few thousand labeled examples per class is enough to fine-tune DiT or LayoutLMv3 to 95%+ accuracy for your specific document mix. The labeled corpus built for Stage 4 (payer name) can share the same annotation pipeline.</p>
+        </div>
+
+        <h3>Accuracy benchmarks</h3>
+        <table class="acc-table">
+          <tr><th>Classifier</th><th>Accuracy (fine-tuned)</th><th>Inference time</th><th>GPU needed</th><th>Verdict</th></tr>
+          <tr>
+            <td>Rule-based (Tier 1)</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:100%"></div><span>~100% on blanks/checks</span></div></td>
+            <td>&lt;1ms</td>
+            <td>No</td>
+            <td><span class="rec-badge yes">Always first</span></td>
+          </tr>
+          <tr>
+            <td>TF-IDF + LogReg (Tier 2)</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:95px"></div><span>94–97%</span></div></td>
+            <td>~5ms</td>
+            <td>No</td>
+            <td><span class="rec-badge yes">Fast mid-tier</span></td>
+          </tr>
+          <tr>
+            <td>DiT fine-tuned (Tier 3)</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:98px"></div><span>97–99%</span></div></td>
+            <td>60–120ms</td>
+            <td>Yes (A100)</td>
+            <td><span class="rec-badge yes">Hard cases</span></td>
+          </tr>
+          <tr>
+            <td>LayoutLMv3 fine-tuned</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:95px"></div><span>93–97%</span></div></td>
+            <td>80–150ms</td>
+            <td>Yes (A100)</td>
+            <td><span class="rec-badge cond">If combining with Stage 4</span></td>
+          </tr>
+          <tr>
+            <td>EfficientNet-B4</td>
+            <td><div class="bar"><div class="bar-fill level-m" style="width:91px"></div><span>90–95%</span></div></td>
+            <td>40–80ms</td>
+            <td>Yes</td>
+            <td><span class="rec-badge cond">Simpler baseline</span></td>
+          </tr>
+        </table>
+
+        <div class="callout info">
+          <span class="ct">Combined stage opportunity</span>
+          <p>The team explicitly called out combining classification and payer-name extraction into one model pass to save cost. <strong>LayoutLMv3</strong> supports this natively — it can output both a document-class label and an extracted entity span (payer name) in a single forward pass. If this path is chosen, Stages 3 and 4 share the same model, GPU call, and training pipeline. This is the recommended approach for the GPU path.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAGE 4 ===== -->
+<section id="s4">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--purple)">Stage 4 · Payer Name Extraction &amp; Normalization</div>
+    <div class="stage s4">
+      <div class="stage-head">
+        <span class="snum">04</span>
+        <div class="stxt">
+          <h3>Payer Name Extraction, Normalization &amp; Second Exclusion</h3>
+          <p>Extract the insurance payer name from the digitized EOB, normalize it against the existing payer registry, fuzzy-match against client-provided expected-payer lists, and perform the second exclusion pass — all before the document reaches the LLM extraction stage</p>
+        </div>
+      </div>
+      <div class="stage-body">
+
+        <div class="io-row">
+          <div class="io-cell in">
+            <h5>Input</h5>
+            <ul>
+              <li>OCR text + bounding boxes (from Stage 2)</li>
+              <li>Document classification label (from Stage 3)</li>
+              <li>Client-provided payer list (expected payers at onboarding)</li>
+              <li>Existing payer normalization registry (PNC DB)</li>
+            </ul>
+          </div>
+          <div class="io-divider"></div>
+          <div class="io-cell out">
+            <h5>Output</h5>
+            <ul>
+              <li>Normalized payer name (matched to registry)</li>
+              <li>Exclusion decision (yes/no) + report entry</li>
+              <li>Confidence score</li>
+              <li>Unclear payer → exception queue with top-3 suggestions</li>
+              <li>Clean images → Stage 5 (LLM extraction, WG2)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>The payer name problem — why it's hard</h3>
+        <p>Insurance payer names are highly variable across EOBs from the same payer: abbreviations, trade names, DBA names, subsidiary names, close collisions (AIG vs. AI Insurance). The team confirmed that <strong>existing normalization work is non-negotiable</strong> — it must be preserved and integrated, not re-built.</p>
+        <ul class="warn-list">
+          <li>Same payer may appear as "BlueCross BlueShield", "BCBS", "Blue Cross", "BC/BS of TX"</li>
+          <li>Initials risk: "AI" matching "AIG" — requires a curated fuzzy threshold and blacklist</li>
+          <li>Third-party payer confusion: "Melon Overpayment Recovery" is NOT the primary payer (as seen in the demo)</li>
+          <li>Payer name position is not fixed — header, letter body, or buried in paragraph</li>
+        </ul>
+
+        <h3>Recommended primary stack</h3>
+        <div class="tool-grid">
+          <div class="tool-card primary">
+            <div class="tname">spaCy v3 + Custom NER</div>
+            <span class="ttag">Explosion AI — MIT License — On-prem · CPU/GPU</span>
+            <p>Train a custom Named Entity Recognition model on your labeled EOB history to recognize PAYER_NAME spans in OCR text. spaCy v3 with transformer backbones (spaCy-transformers + BERT) achieves 92–96% F1 on custom entities with a few thousand labeled examples. Returns per-entity confidence score. Runs on CPU for inference, GPU for training.</p>
+            <div class="badges">
+              <span class="tb oss">MIT License</span>
+              <span class="tb cpu">CPU inference</span>
+              <span class="tb acc">92–96% F1 (custom)</span>
+            </div>
+          </div>
+          <div class="tool-card primary">
+            <div class="tname">RapidFuzz</div>
+            <span class="ttag">Max Bachmann — MIT License — On-prem · CPU</span>
+            <p>Ultra-fast fuzzy string matching library (written in C++, Python bindings). Implements Levenshtein, Jaro-Winkler, token-set ratio, and partial ratio. At 10K payer names, it can compute top-5 fuzzy matches in &lt;5ms. This is the normalization matching engine — takes the extracted raw payer name and returns the closest registry entry with a similarity score.</p>
+            <div class="badges">
+              <span class="tb oss">MIT License</span>
+              <span class="tb cpu">CPU only</span>
+              <span class="tb acc">Configurable threshold</span>
+            </div>
+          </div>
+          <div class="tool-card primary">
+            <div class="tname">Elasticsearch (on-prem)</div>
+            <span class="ttag">Elastic — SSPL/Elastic License — On-prem</span>
+            <p>Deploy on-prem as a payer-name search and normalization service. Index all known payer names and aliases. Fuzzy search with BM25 + edit-distance scoring returns ranked candidates. Excels at multi-token payer names and handles abbreviation expansion via synonym filters. Doubles as the payer registry lookup store.</p>
+            <div class="badges">
+              <span class="tb oss">Open-source core</span>
+              <span class="tb cpu">CPU</span>
+              <span class="tb acc">Ranked fuzzy search</span>
+            </div>
+          </div>
+          <div class="tool-card alt">
+            <div class="tname">LayoutLMv3 (combined)</div>
+            <span class="ttag">Microsoft — On-prem · GPU</span>
+            <p>If using LayoutLMv3 for classification (Stage 3), it can simultaneously extract the payer-name span as a token classification task — eliminating a separate NER model call. This is the recommended GPU-path optimization: one model, two outputs (class + payer entity).</p>
+            <div class="badges">
+              <span class="tb oss">Research license</span>
+              <span class="tb gpu">GPU</span>
+              <span class="tb acc">93–96% joint</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Full payer extraction + normalization pipeline</h3>
+        <div class="flow-box">
+          <h5>End-to-end payer name flow</h5>
+          <div class="flow-steps" style="flex-wrap:wrap;gap:6px">
+            <div class="fstep">OCR text + positions</div><span class="farrow">›</span>
+            <div class="fstep hi">spaCy NER → raw payer span</div><span class="farrow">›</span>
+            <div class="fstep">Filter known 3rd-party prefixes</div><span class="farrow">›</span>
+            <div class="fstep hi">RapidFuzz → top-N registry matches</div><span class="farrow">›</span>
+            <div class="fstep hi">Elasticsearch synonym expand</div><span class="farrow">›</span>
+            <div class="fstep">Confidence ≥ 0.90?</div><span class="farrow">›</span>
+            <div class="fstep hi">Normalize → exclusion check</div><span class="farrow">›</span>
+            <div class="fstep ex">Low conf → exception + suggestions</div>
+          </div>
+        </div>
+
+        <h3>Fuzzy matching thresholds</h3>
+        <div class="conf-box">
+          <div class="conf-head">Payer name match confidence → action</div>
+          <div class="conf-rows">
+            <div class="conf-row high-conf">
+              <span class="label">≥ 0.92 exact/near</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Auto-normalize ✓</span>
+            </div>
+            <div class="conf-row med-conf">
+              <span class="label">0.70–0.92 fuzzy</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Queue + top-3 shown</span>
+            </div>
+            <div class="conf-row low-conf">
+              <span class="label">&lt; 0.70 unknown</span>
+              <div class="track"><div class="fill"></div></div>
+              <span class="action">Manual review</span>
+            </div>
+          </div>
+        </div>
+
+<pre><span class="cm"># Payer extraction + normalization pipeline</span>
+<span class="kw">import</span> spacy
+<span class="kw">from</span> rapidfuzz <span class="kw">import</span> process, fuzz
+<span class="kw">from</span> elasticsearch <span class="kw">import</span> Elasticsearch
+
+nlp = spacy.load(<span class="st">"en_payer_ner"</span>)  <span class="cm"># custom-trained NER model</span>
+es = Elasticsearch([<span class="st">"http://pnc-es-node:9200"</span>])
+
+<span class="kw">def</span> <span class="fn">extract_and_normalize</span>(ocr_text: <span class="va">str</span>, payer_list: <span class="va">list</span>) -> <span class="va">dict</span>:
+    <span class="cm"># Step 1: NER extraction</span>
+    doc = nlp(ocr_text)
+    raw_payer = <span class="fn">next</span>((e.text <span class="kw">for</span> e <span class="kw">in</span> doc.ents
+                       <span class="kw">if</span> e.label_ == <span class="st">"PAYER"</span>), <span class="kw">None</span>)
+    <span class="kw">if not</span> raw_payer:
+        <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"exception"</span>, <span class="st">"reason"</span>: <span class="st">"no_payer_found"</span>}
+
+    <span class="cm"># Step 2: Fuzzy match against client payer list (fast pre-filter)</span>
+    best = process.extractOne(raw_payer, payer_list,
+                              scorer=fuzz.token_set_ratio,
+                              score_cutoff=<span class="nu">70</span>)
+    <span class="kw">if</span> best <span class="kw">and</span> best[<span class="nu">1</span>] >= <span class="nu">92</span>:
+        <span class="kw">return</span> {<span class="st">"payer"</span>: best[<span class="nu">0</span>], <span class="st">"conf"</span>: best[<span class="nu">1</span>]/<span class="nu">100</span>, <span class="st">"status"</span>: <span class="st">"matched"</span>}
+
+    <span class="cm"># Step 3: Elasticsearch synonym + alias search</span>
+    res = es.search(index=<span class="st">"payer_registry"</span>, body={
+        <span class="st">"query"</span>: {<span class="st">"fuzzy"</span>: {<span class="st">"name"</span>: {<span class="st">"value"</span>: raw_payer, <span class="st">"fuzziness"</span>: <span class="st">"AUTO"</span>}}}
+    })
+    candidates = [(h[<span class="st">"_source"</span>][<span class="st">"name"</span>], h[<span class="st">"_score"</span>])
+                  <span class="kw">for</span> h <span class="kw">in</span> res[<span class="st">"hits"</span>][<span class="st">"hits"</span>][:<span class="nu">3</span>]]
+    <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"exception"</span>, <span class="st">"raw"</span>: raw_payer,
+            <span class="st">"suggestions"</span>: candidates}  <span class="cm"># → operator queue</span></pre>
+
+        <h3>Protecting existing normalization work</h3>
+        <div class="callout warn">
+          <span class="ct">Non-negotiable — maintain current normalization</span>
+          <p>The team was explicit: the payer-name normalization already implemented must carry forward. The recommended approach is to <strong>load the existing normalization mapping as the primary lookup layer in Elasticsearch</strong>, and only escalate to fuzzy-matching when an exact or alias match fails. New normalizations discovered through the exception queue get added back to the registry — closing the learning loop. No new normalization logic is created that could contradict existing mappings.</p>
+        </div>
+
+        <h3>Third-party payer filtering</h3>
+        <p>As seen in the CORE demo, documents sometimes display a third-party entity (e.g., "Melon Overpayment Recovery") ahead of the actual payer. A curated blocklist of known third-party prefixes/suffixes — maintained as a simple JSON config — is applied before the fuzzy match step to drop these false hits.</p>
+
+        <h3>Accuracy benchmarks</h3>
+        <table class="acc-table">
+          <tr><th>Component</th><th>Task accuracy</th><th>Latency</th><th>Notes</th></tr>
+          <tr>
+            <td>spaCy v3 + BERT NER</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:94px"></div><span>92–96% F1</span></div></td>
+            <td>~20ms CPU</td>
+            <td>With 2K+ labeled EOB examples</td>
+          </tr>
+          <tr>
+            <td>RapidFuzz (token_set_ratio)</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:96px"></div><span>95–98% recall</span></div></td>
+            <td>&lt;5ms / doc</td>
+            <td>Against 10K payer list</td>
+          </tr>
+          <tr>
+            <td>Elasticsearch fuzzy</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:93px"></div><span>93–97% recall</span></div></td>
+            <td>~15ms</td>
+            <td>With synonym filters + alias index</td>
+          </tr>
+          <tr>
+            <td>LayoutLMv3 joint (Stg 3+4)</td>
+            <td><div class="bar"><div class="bar-fill level-h" style="width:95px"></div><span>93–96% F1</span></div></td>
+            <td>80–150ms GPU</td>
+            <td>Single model pass, combined classification</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SUMMARY ===== -->
+<section id="summary">
+  <div class="wrap">
+    <div class="sec-label" style="color:var(--ink3)">Stack summary</div>
+    <h2>Recommended on-prem stack by stage</h2>
+    <p>All components below deploy on-prem, inside PNC-controlled infrastructure. All are open-source (Apache 2.0 or MIT) unless marked commercial, and all are available for procurement without a new vendor approval cycle except ABBYY and LEADTOOLS (noted as fallback only).</p>
+
+    <table class="sum-table">
+      <tr><th>Stage</th><th>Primary Tool</th><th>Technique</th><th>License</th><th>GPU</th><th>Accuracy target</th></tr>
+      <tr>
+        <td>1 · MICR Exclusion</td>
+        <td>Tesseract 5 + OpenCV</td>
+        <td>MICR E-13B font recognition + OTSU binarize + SQL lookup</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">Apache 2.0</span></td>
+        <td>No — CPU only</td>
+        <td>97–99% char accuracy</td>
+      </tr>
+      <tr>
+        <td>2 · Digitization (heavy)</td>
+        <td>PaddleOCR v4 + PPStructure</td>
+        <td>Layout analysis → table detection → OCR → JSON + confidence</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">Apache 2.0</span></td>
+        <td>Yes — A100/H100</td>
+        <td>98–99% on printed</td>
+      </tr>
+      <tr>
+        <td>2 · Digitization (light)</td>
+        <td>Tesseract 5 LSTM</td>
+        <td>hOCR with word-level confidence, text-only path</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">Apache 2.0</span></td>
+        <td>No — CPU</td>
+        <td>93–96% on scanned</td>
+      </tr>
+      <tr>
+        <td>2 · Complexity routing</td>
+        <td>OpenCV + pdfminer</td>
+        <td>Edge density + horizontal line count → simple/complex flag</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">Apache 2.0</span></td>
+        <td>No — CPU</td>
+        <td>Rules-based, fast</td>
+      </tr>
+      <tr>
+        <td>3 · Classification (Tier 1)</td>
+        <td>OpenCV rules</td>
+        <td>Pixel variance for blank; MICR flag for check; keyword for EOB</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">Apache 2.0</span></td>
+        <td>No</td>
+        <td>~100% for blanks/checks</td>
+      </tr>
+      <tr>
+        <td>3 · Classification (Tier 2)</td>
+        <td>scikit-learn TF-IDF + LogReg</td>
+        <td>Text features from OCR, trained on labeled batch history</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">BSD-3</span></td>
+        <td>No — CPU</td>
+        <td>94–97% text-based</td>
+      </tr>
+      <tr>
+        <td>3 · Classification (Tier 3)</td>
+        <td>DiT fine-tuned</td>
+        <td>Visual transformer, trained on labeled EOB image history</td>
+        <td><span class="chip a" style="font-size:11px;padding:2px 8px">CC BY-NC-SA</span></td>
+        <td>Yes</td>
+        <td>97–99% fine-tuned</td>
+      </tr>
+      <tr>
+        <td>3+4 · Combined (GPU path)</td>
+        <td>LayoutLMv3 fine-tuned</td>
+        <td>Joint classification + NER in single forward pass</td>
+        <td><span class="chip a" style="font-size:11px;padding:2px 8px">CC BY-NC-SA</span></td>
+        <td>Yes</td>
+        <td>93–97% joint</td>
+      </tr>
+      <tr>
+        <td>4 · Payer NER</td>
+        <td>spaCy v3 + BERT NER</td>
+        <td>Custom PAYER entity, trained on labeled EOB corpus</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">MIT</span></td>
+        <td>No (inference)</td>
+        <td>92–96% F1</td>
+      </tr>
+      <tr>
+        <td>4 · Payer normalization</td>
+        <td>RapidFuzz + Elasticsearch</td>
+        <td>Token-set ratio + alias synonym index + registry lookup</td>
+        <td><span class="chip g" style="font-size:11px;padding:2px 8px">MIT / SSPL</span></td>
+        <td>No — CPU</td>
+        <td>95–98% recall</td>
+      </tr>
+      <tr>
+        <td>4 · Fallback OCR (commercial)</td>
+        <td>ABBYY FineReader Engine</td>
+        <td>Commercial on-prem for hardest scan quality edge cases only</td>
+        <td><span class="chip r" style="font-size:11px;padding:2px 8px">Commercial</span></td>
+        <td>Optional</td>
+        <td>99%+ on complex</td>
+      </tr>
+    </table>
+
+    <div class="g2" style="margin-top:28px">
+      <div class="callout good">
+        <span class="ct">Regression testing approach for 6/15</span>
+        <p>The meeting notes confirmed regression testing as the method for comparing and switching models. Recommendation: build a labeled test set of 500–1,000 batches per stage from existing processed history (with known ground truth), and run every candidate tool against it. Report accuracy, throughput (docs/sec), and memory footprint per tool. This becomes the switching criterion going forward.</p>
+      </div>
+      <div class="callout info">
+        <span class="ct">IBM Datacap — evaluate for Stage 2</span>
+        <p>IBM Datacap was flagged at the session as potentially outperforming Microsoft Foundry on-prem. Include it in the Stage 2 regression test alongside PaddleOCR and Tesseract. If it achieves comparable accuracy at lower per-document compute cost and it is already on PNC's approved vendor list, it could replace PaddleOCR on the heavy path without any pipeline changes.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px">What this hands to WG2</h3>
+    <p>When Stage 4 completes cleanly, WG2 receives:</p>
+    <ul class="check">
+      <li>Structured OCR text with bounding boxes and word-level confidence (JSON)</li>
+      <li>Page-type labels for every page in the batch (EOB / check / summary / blank)</li>
+      <li>Normalized payer name matched to the registry</li>
+      <li>Volume already reduced by ~50% (MICR exclusion) + second payer-exclusion pass</li>
+      <li>Complexity signal (simple text vs. tabular) to inform LLM routing</li>
+      <li>Any low-confidence items already routed to the exception queue — <strong>the LLM never sees a bad batch</strong></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>WG1 · EOB Initial Pipeline Evaluation.</b> On-premises stack recommendations for Stages 1–4.</p>
+    <p style="margin-top:8px">All accuracy figures are benchmarks from published evaluations or typical production performance with fine-tuning on domain data. Validate against PNC's specific lockbox scan quality and labeled test set before final selection. Commercial tools (ABBYY, LEADTOOLS, IBM Datacap) are noted as fallbacks and require procurement validation. Return on 6/15 with regression test results.</p>
+  </div>
+</footer>
+
+</body>
+</html>
