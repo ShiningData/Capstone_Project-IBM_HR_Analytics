@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A2A Any-to-Any File Mapping — POC Architecture Design</title>
+<style>
+:root{
+  --paper:#ffffff; --bg:#eef1f3; --ink:#141a20; --ink-soft:#39434d;
+  --muted:#6c7783; --line:#e2e7ea; --line-soft:#eef1f3;
+  --accent:#0e7c73; --accent-deep:#0a5a54; --accent-tint:#e7f2f0;
+  --code-bg:#f5f8f8; --shadow:0 1px 2px rgba(20,26,32,.05),0 8px 30px rgba(20,26,32,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent-deep); text-decoration:none}
+a:hover{text-decoration:underline}
+
+.shell{max-width:1180px; margin:0 auto; padding:34px 24px 90px;
+  display:grid; grid-template-columns:232px minmax(0,1fr); gap:44px; align-items:start;}
+
+/* ---- Sidebar nav ---- */
+.side{position:sticky; top:26px; align-self:start;}
+.side .brandtag{font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent-deep); font-weight:700; margin:0 0 14px 2px;}
+.side ol,.side ul{list-style:none; margin:0; padding:0}
+.side li a{display:flex; gap:10px; align-items:baseline; padding:5px 10px; border-radius:7px;
+  color:var(--ink-soft); font-size:13.5px; line-height:1.35; border-left:2px solid transparent;}
+.side li a:hover{background:var(--paper); color:var(--ink); text-decoration:none;}
+.side li a .n{color:var(--accent); font-variant-numeric:tabular-nums; font-weight:700; font-size:12px;}
+.side li a.active{background:var(--paper); border-left-color:var(--accent); color:var(--ink); box-shadow:var(--shadow);}
+
+/* ---- Main column ---- */
+main{min-width:0}
+.masthead{background:var(--paper); border:1px solid var(--line); border-radius:16px;
+  padding:34px 38px 30px; box-shadow:var(--shadow); margin-bottom:30px; position:relative; overflow:hidden;}
+.masthead::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--accent);}
+.eyebrow{font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent-deep);
+  font-weight:700; margin:0 0 12px;}
+.masthead h1{font-size:31px; line-height:1.18; letter-spacing:-.015em; margin:0 0 22px; font-weight:760;}
+.metagrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 34px; border-top:1px solid var(--line-soft); padding-top:18px;}
+.metarow{display:flex; gap:12px; padding:5px 0; font-size:14px;}
+.metarow .mk{color:var(--muted); min-width:78px; font-weight:600; text-transform:uppercase; font-size:11px; letter-spacing:.06em; padding-top:3px;}
+.metarow .mv{color:var(--ink-soft)}
+
+.doc{background:var(--paper); border:1px solid var(--line); border-radius:16px;
+  padding:14px 46px 52px; box-shadow:var(--shadow);}
+
+h2{display:flex; align-items:baseline; gap:16px; font-size:23px; letter-spacing:-.01em; font-weight:730;
+  margin:52px 0 4px; padding-top:26px; border-top:1px solid var(--line-soft); scroll-margin-top:20px;}
+h2:first-of-type{border-top:none; margin-top:26px; padding-top:6px;}
+h2 .secnum{color:var(--accent); font-variant-numeric:tabular-nums; font-size:15px; font-weight:800;
+  letter-spacing:.02em; transform:translateY(-2px); flex:none;}
+h3{font-size:17px; font-weight:700; letter-spacing:-.005em; margin:30px 0 6px; color:var(--ink);}
+p{margin:12px 0}
+strong{font-weight:680}
+ul,ol{padding-left:22px; margin:12px 0}
+li{margin:6px 0}
+li::marker{color:var(--accent)}
+hr{border:none; border-top:1px solid var(--line-soft); margin:34px 0;}
+
+/* inline + block code */
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.86em;
+  background:var(--code-bg); color:var(--accent-deep); padding:.12em .4em; border-radius:5px;
+  border:1px solid var(--line);}
+pre{background:#0f1a1c; color:#e6f0ef; border-radius:12px; padding:18px 20px; overflow:auto;
+  font-size:13.5px; line-height:1.55; margin:18px 0; border:1px solid #14282a;}
+pre code{background:none; border:none; color:inherit; padding:0; font-size:inherit;}
+
+/* tables */
+table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;
+  border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+thead th{background:var(--accent-tint); color:var(--accent-deep); text-align:left; font-weight:700;
+  padding:11px 14px; font-size:12.5px; letter-spacing:.03em; text-transform:uppercase;
+  border-bottom:1px solid var(--line);}
+tbody td{padding:11px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top;}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:#fafcfc}
+tbody td:first-child{white-space:nowrap; font-weight:700; color:var(--accent-deep);}
+
+/* mermaid figures */
+figure.diagram{margin:24px 0; background:linear-gradient(180deg,#fbfdfd,#f6f9f9);
+  border:1px solid var(--line); border-radius:14px; padding:20px 14px; text-align:center; overflow-x:auto;}
+figure.diagram .mermaid{display:inline-block; min-width:min(100%,520px);}
+figure.diagram svg{max-width:100%; height:auto;}
+
+@media (max-width:920px){
+  .shell{grid-template-columns:1fr; gap:0; padding:18px 14px 70px;}
+  .side{position:static; margin-bottom:18px; background:var(--paper); border:1px solid var(--line);
+    border-radius:14px; padding:14px 12px;}
+  .side .brandtag{margin-left:6px}
+  .side ul{display:flex; flex-wrap:wrap; gap:2px}
+  .side li a{border-left:none}
+  .doc{padding:8px 20px 40px}
+  .masthead{padding:26px 22px}
+  .masthead h1{font-size:25px}
+  .metagrid{grid-template-columns:1fr}
+  h2{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{
+  body{background:#fff} .side{display:none} .shell{display:block; max-width:none; padding:0}
+  .doc,.masthead{box-shadow:none; border-color:#ccc}
+  figure.diagram{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <p class="brandtag">Contents</p>
+    <nav><ul>
+<li><a href="#sec-1"><span class="n">01</span>What the stakeholders asked for</a></li>
+<li><a href="#sec-2"><span class="n">02</span>Current state (why this exists)</a></li>
+<li><a href="#sec-3"><span class="n">03</span>Target POC architecture (overview)</a></li>
+<li><a href="#sec-4"><span class="n">04</span>End-to-end workflow</a></li>
+<li><a href="#sec-5"><span class="n">05</span>Capability 1 — Initial mapping</a></li>
+<li><a href="#sec-6"><span class="n">06</span>Capability 2 — Learning &amp;amp; improvement</a></li>
+<li><a href="#sec-7"><span class="n">07</span>Capability 3 — MIG generation</a></li>
+<li><a href="#sec-8"><span class="n">08</span>Configuration &amp;amp; data model (MongoDB)</a></li>
+<li><a href="#sec-9"><span class="n">09</span>Exception handling &amp;amp; accuracy gating</a></li>
+<li><a href="#sec-10"><span class="n">10</span>Analytics &amp;amp; developer portal</a></li>
+<li><a href="#sec-11"><span class="n">11</span>Governance, security &amp;amp; environments</a></li>
+<li><a href="#sec-12"><span class="n">12</span>Delivery phasing</a></li>
+<li><a href="#sec-13"><span class="n">13</span>Open decisions to close with the DS team</a></li>
+    </ul></nav>
+  </aside>
+  <main>
+    <header class="masthead">
+      <p class="eyebrow">DSI · Architecture Design</p>
+      <h1>A2A Any-to-Any File Mapping — POC Architecture Design</h1>
+      <div class="metagrid">
+<div class="metarow"><span class="mk">Program</span><span class="mv">Client payment-file translation into PNC-standard formats (ITX successor)</span></div>
+<div class="metarow"><span class="mk">POC scope</span><span class="mv">ISO → integrated-payables flat file (DSV → flat as second format)</span></div>
+<div class="metarow"><span class="mk">Author</span><span class="mv">DSI / Data Science Innovation</span></div>
+<div class="metarow"><span class="mk">Status</span><span class="mv">Draft for internal DS review — pre-governance</span></div>
+      </div>
+    </header>
+    <article class="doc">
+<h2 id="sec-1"><span class="secnum">01</span><span class="sectext">What the stakeholders asked for</span></h2>
+<p>The POC has to demonstrate three — and only three — capabilities. Everything in this design exists to serve them, and anything that expands into a full multi-client platform before these are proven is out of scope.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Capability</th>
+<th>What "done" looks like for the POC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>Initial mapping</strong></td>
+<td>A client ISO file is submitted and the tool returns a proposed field-level mapping to the PNC flat-file standard (e.g. an initial pass that is ~50% correct).</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Learning &amp; improvement</strong></td>
+<td>Reviewer corrections are applied iteratively and the tool improves across successive files (50% → 60% → 100%), learning reusable rules (e.g. <code>P + WR = wire</code>) rather than treating each file in isolation.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>MIG generation</strong></td>
+<td>The tool emits a MIG — the implementation document handed to ITX — including the column-O transformation instructions (positional moves, numeric/alpha, domestic/international, record identifiers).</td>
+</tr>
+</tbody>
+</table>
+<p>The design principle underneath all three is the one already chosen for A2A: <strong>compile-once, execute-many</strong> — high-level workflow logic is authored and versioned once; per-file specifics ride in on the request.</p>
+<hr />
+<h2 id="sec-2"><span class="secnum">02</span><span class="sectext">Current state (why this exists)</span></h2>
+<p>Today the path from a client file to a processable PNC file is manual and slow:</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    C[Client file&lt;br/&gt;e.g. Kroger ISO] --&gt;|SFG / FLIPS / API| SFG[Sterling File Gateway]
+    SFG --&gt; ITX[ITX&lt;br/&gt;coded translation]
+    ITX --&gt; OUT[PNC flat-file output]
+
+    subgraph Manual[Manual, weeks-to-months]
+        J[Justin: line-by-line&lt;br/&gt;format comparison] --&gt; MIG[MIG authored]
+        MIG --&gt; MIS[MIS codes MIG into ITX]
+    end
+    MIG -.feeds.-&gt; ITX
+    C -.reviewed by.-&gt; J
+</div></figure>
+<ul>
+<li>Justin compares the client format to the PNC flat-file format line by line; clarification loops with the client run <strong>weeks to months</strong>.</li>
+<li>He authors a <strong>MIG</strong>, MIS codes it into <strong>ITX</strong>, and ITX applies the coded translation.</li>
+<li>Mappings in production may be a year old; there is no learning, no reuse library, no accuracy visibility.</li>
+</ul>
+<p><strong>Target for the POC:</strong> collapse that weeks-to-months implementation effort to <strong>~5–10 minutes</strong> for the mapping + MIG draft, with a human reviewer still in the loop. ITX stays in place during the POC; full ITX replacement is the 1–2 year (broader channels 3–5 year) vision, not this deliverable.</p>
+<hr />
+<h2 id="sec-3"><span class="secnum">03</span><span class="sectext">Target POC architecture (overview)</span></h2>
+<p>A configuration-driven <strong>orchestrator</strong> receives a document plus a mapping reference, resolves an any-to-any workflow, runs the steps, checks accuracy, and either returns output or routes to an exception queue. Prompts, mappings, workflows, LLM settings and connectors all live in config (MongoDB), never in code.</p>
+<figure class="diagram"><div class="mermaid">flowchart TB
+    REQ[&quot;Request&lt;br/&gt;document + mapping_id/sheet + workflow_id&quot;] --&gt; ORCH
+
+    subgraph Core[&quot;Orchestration core (compile-once, execute-many)&quot;]
+        ORCH[Driver / Orchestrator] --&gt; RES[Format detect &amp;&lt;br/&gt;workflow resolve]
+        RES --&gt; STEPS
+        subgraph STEPS[&quot;Configurable workflow steps&quot;]
+            OCR[OCR API&lt;br/&gt;optional] --&gt; T2T[PDF/file → text]
+            T2T --&gt; EXT[Field extraction&lt;br/&gt;prompt + mapping + LLM]
+        end
+        EXT --&gt; ACC[Accuracy check&lt;br/&gt;vs ground truth]
+    end
+
+    ACC --&gt;|pass threshold| MAP[Proposed mapping]
+    ACC --&gt;|below threshold / manual flag| EXQ[Exception queue]
+    MAP --&gt; MIGGEN[MIG generator]
+    MIGGEN --&gt; MIGOUT[MIG output → ITX handoff]
+
+    subgraph Config[&quot;Config store (MongoDB)&quot;]
+        P[Prompts&lt;br/&gt;versioned] 
+        M[Mappings / mapping_ids]
+        W[Workflows]
+        L[LLM settings]
+        CN[Connectors]
+        TL[Template / mapping library]
+    end
+    Config -.-&gt; ORCH
+    Config -.-&gt; STEPS
+
+    EXQ --&gt; REV[Reviewer]
+    REV --&gt;|correction as new request| ORCH
+    REV --&gt;|promote known-good| TL
+
+    subgraph Obs[&quot;Analytics &amp; dev portal&quot;]
+        MET[Accuracy / efficiency metrics]
+        PV[Prompt-version control]
+        MS[Model selection]
+    end
+    Core -.emits.-&gt; Obs
+</div></figure>
+<p><strong>Component responsibilities</strong></p>
+<ul>
+<li><strong>Driver / Orchestrator</strong> — accepts the request (document + <code>mapping_id</code> or inline mapping sheet + <code>workflow_id</code>), pulls config, executes the workflow, and owns the accuracy gate. Stateless per request; all state is in config + request payload.</li>
+<li><strong>Format detect &amp; workflow resolve</strong> — identifies or infers the incoming format (ISO, DSV, or a hybrid with characteristics of both) and selects the applicable any-to-any workflow. A file that mixes ISO/DSV traits is evaluated against applicable rules rather than forced into a rigid label.</li>
+<li><strong>Workflow steps</strong> — declarative, reorderable. Each step (OCR, file→text, extraction) is its own API capability so a step can be added, skipped, or swapped by config. Real-time DSV example: only the date-time field needs conversion, so the workflow can be a single-field transform, not a full re-map.</li>
+<li><strong>Extraction</strong> — runs the request-level <strong>mapping</strong> together with the versioned high-level <strong>prompt</strong> against the selected <strong>LLM</strong>.</li>
+<li><strong>Accuracy check</strong> — compares extraction against target-file requirements / ground truth; routes below-threshold or manually-flagged files to the exception queue.</li>
+<li><strong>MIG generator</strong> — turns the accepted mapping into the ITX-ready MIG.</li>
+<li><strong>Config store (MongoDB)</strong> — workflows, prompts, mappings, LLM settings, connectors, and the reusable template/mapping library.</li>
+<li><strong>Analytics &amp; dev portal</strong> — metrics, prompt versioning, model selection (Section 10).</li>
+</ul>
+<hr />
+<h2 id="sec-4"><span class="secnum">04</span><span class="sectext">End-to-end workflow</span></h2>
+<p>Sections 5–7 detail each capability in isolation; this section shows how they compose into one running system. Three views: the <strong>request lifecycle</strong> (a file from arrival to MIG or exception), the <strong>QA learning loop</strong> (how a mapping is corrected and promoted), and the <strong>config data model</strong> they both run on.</p>
+<h3>4.1 Request lifecycle</h3>
+<p>A client file enters through a channel; the orchestrator resolves the workflow and mapping from config, the steps run, and the accuracy gate sends the result either to MIG generation or to the exception queue.</p>
+<figure class="diagram"><div class="mermaid">flowchart TB
+    CF[&quot;Client file&lt;br/&gt;ISO / DSV integrated payables&quot;] --&gt; CH[&quot;Channel intake&lt;br/&gt;SFG · FLIPS · API&quot;]
+    CH --&gt; ING[&quot;Ingest &amp; format detect&lt;br/&gt;infer ISO / DSV / hybrid&quot;]
+    ING --&gt; ORCH[&quot;Orchestrator&lt;br/&gt;resolve workflow + mapping_id&quot;]
+    CFG[(&quot;Config store — MongoDB&lt;br/&gt;prompt · mapping · LLM · workflow&quot;)] -.-&gt; ORCH
+    ORCH --&gt; STEPS[&quot;Workflow steps&lt;br/&gt;OCR? → file→text → field extraction&quot;]
+    CFG -.-&gt; STEPS
+    STEPS --&gt; GATE{&quot;Accuracy gate&lt;br/&gt;score vs ground truth&quot;}
+    GATE --&gt;|pass| MIG[&quot;MIG generation&lt;br/&gt;ITX handoff&quot;]
+    GATE --&gt;|below threshold| EXQ[&quot;Exception queue&lt;br/&gt;auto or manual routing&quot;]
+    EXQ --&gt; REV[&quot;Reviewer&lt;br/&gt;→ QA correction loop&quot;]
+    class GATE gate
+    class EXQ exc
+    class REV exc
+    class MIG out
+    classDef gate fill:#faeeda,stroke:#ba7517,color:#633806
+    classDef exc fill:#faece7,stroke:#993c1d,color:#712b13
+    classDef out fill:#e1f5ee,stroke:#0f6e56,color:#085041
+</div></figure>
+<p><code>REQUEST.status</code> is the state machine behind this flow: <code>received → resolved → extracting → scored → (accepted | exception) → mig_generated</code>. Every correction spawns a <strong>new request against the same <code>document_ref</code></strong>, which is what makes each iteration reproducible and auditable.</p>
+<h3>4.2 QA learning loop</h3>
+<p>Files that fail the gate — or are flagged manually — enter the correction loop. The reviewer's real task is deciding <em>where</em> each fix belongs before resubmitting; once the mapping reaches 100% it is promoted into the reusable template library.</p>
+<figure class="diagram"><div class="mermaid">flowchart TB
+    PM[&quot;Proposed mapping&lt;br/&gt;~50% correct&quot;] --&gt; REV{&quot;Reviewer&lt;br/&gt;classify each fix&quot;}
+    REV --&gt;|positional / field rule| ME[&quot;Mapping edit&quot;]
+    REV --&gt;|persistent across files| PV[&quot;New prompt version&quot;]
+    REV --&gt;|extraction quality| LC[&quot;LLM / OCR config&quot;]
+    ME --&gt; RS[&quot;Resubmit as new request&lt;br/&gt;same document, reproducible&quot;]
+    PV --&gt; RS
+    LC --&gt; RS
+    RS --&gt; SC{&quot;Re-score&lt;br/&gt;60% → 100%&quot;}
+    SC --&gt;|not yet correct| REV
+    SC --&gt;|100%| PROMO[&quot;Promote to template library&lt;br/&gt;reusable mapping_id + rules&quot;]
+    class REV gate
+    class SC gate
+    class PROMO out
+    classDef gate fill:#faeeda,stroke:#ba7517,color:#633806
+    classDef out fill:#e1f5ee,stroke:#0f6e56,color:#085041
+</div></figure>
+<h3>4.3 Config data model</h3>
+<p>Both flows run on configuration, not code. The orchestrator joins a request to its workflow, prompt, mapping and LLM settings; accepted mappings flow back into the template library that seeds the next client.</p>
+<figure class="diagram"><div class="mermaid">erDiagram
+    REQUEST ||--|| WORKFLOW : resolves
+    REQUEST ||--|| MAPPING : uses
+    WORKFLOW ||--o{ STEP : contains
+    WORKFLOW ||--|| PROMPT : &quot;active version&quot;
+    STEP ||--|| LLM_SETTING : runs_on
+    MAPPING ||--o| TEMPLATE : &quot;promoted from&quot;
+    REQUEST ||--o{ EXCEPTION : may_raise
+    REQUEST ||--o| MIG : produces
+    REQUEST {
+        uuid request_id PK
+        string document_ref
+        string workflow_id FK
+        string mapping_id FK
+        float accuracy_score
+        string status
+    }
+    WORKFLOW {
+        string workflow_id PK
+        string format
+        string prompt_id FK
+        json step_order
+    }
+    STEP {
+        uuid step_id PK
+        string type
+        string llm_id FK
+        int position
+    }
+    PROMPT {
+        string prompt_id PK
+        int version
+        bool is_active
+        text instructions
+    }
+    MAPPING {
+        string mapping_id PK
+        string client
+        json field_rules
+        json positions
+    }
+    LLM_SETTING {
+        string llm_id PK
+        string model
+        json params
+        string endpoint
+    }
+    TEMPLATE {
+        string template_id PK
+        string format_fingerprint
+        string mapping_id FK
+    }
+    EXCEPTION {
+        uuid exception_id PK
+        string request_id FK
+        string reason
+        string route_target
+    }
+    MIG {
+        uuid mig_id PK
+        string request_id FK
+        json column_o_rules
+        json record_identifiers
+    }
+</div></figure>
+<p>Key relationships worth noting:</p>
+<ul>
+<li><strong><code>WORKFLOW → PROMPT</code> targets only the active version.</strong> Promoting a new prompt version flips <code>is_active</code> and leaves history intact, so the portal can show what changed and what previously worked.</li>
+<li><strong><code>MAPPING</code> is client-agnostic where it can be.</strong> Shared <code>field_rules</code> (e.g. <code>P + WR = wire</code>) live at the workflow/prompt level; <code>positions</code> hold client-specific offsets. That split is what stops 10 clients × 10 formats from becoming 100 prompts.</li>
+<li><strong><code>TEMPLATE.format_fingerprint</code> is the similarity key.</strong> A new file is matched against it ("looks like Walmart") to seed a starting mapping.</li>
+</ul>
+<hr />
+<h2 id="sec-5"><span class="secnum">05</span><span class="sectext">Capability 1 — Initial mapping</span></h2>
+<p><strong>Goal:</strong> submit a client file, get back a proposed field-level mapping to the PNC flat-file standard.</p>
+<figure class="diagram"><div class="mermaid">sequenceDiagram
+    participant U as Submitter
+    participant O as Orchestrator
+    participant C as Config (Mongo)
+    participant S as Workflow steps
+    participant A as Accuracy gate
+
+    U-&gt;&gt;O: document + mapping_id/sheet + workflow_id
+    O-&gt;&gt;C: load workflow, prompt(active), LLM, mapping
+    O-&gt;&gt;S: run OCR? → file→text → extract
+    S-&gt;&gt;S: apply high-level prompt + request mapping
+    S--&gt;&gt;O: proposed mapping (fields → flat-file positions)
+    O-&gt;&gt;A: score vs target-file requirements
+    A--&gt;&gt;U: proposed mapping + confidence (e.g. 50% correct)
+</div></figure>
+<p><strong>Design points grounded in the transcripts</strong></p>
+<ul>
+<li><strong>Prompt vs mapping separation is strict.</strong> The prompt holds <em>high-level workflow instructions only</em> — "convert document to text," "extract fields." Anything file-specific (a positional rule such as account-number range <code>0–10 → 0–12</code>, or "client value at position 82 moves to position 40") lives in the <strong>mapping</strong>, keyed at the request level. This is what keeps 10 clients × 10 formats from exploding into 100 bespoke prompts.</li>
+<li><strong>Target-file-driven detection.</strong> The tool uses the known PNC flat-file target requirements to surface missing values, reordered fields, and type mismatches — it doesn't need a perfect client spec to produce a first pass.</li>
+<li><strong>Fixed vs variable structure.</strong> The flat file has fixed record identifiers (e.g. the hard-coded <code>060</code> record); client files may use their own (<code>H</code> header, <code>P</code> payment). The mapping reconciles the two.</li>
+<li><strong>First pass is expected to be partial.</strong> 50–60% correctness on the first run is the design assumption, not a failure — Capability 2 closes the gap.</li>
+</ul>
+<hr />
+<h2 id="sec-6"><span class="secnum">06</span><span class="sectext">Capability 2 — Learning &amp; improvement</span></h2>
+<p><strong>Goal:</strong> corrections improve the result on the current file <em>and</em> carry forward to future files. This is the differentiating capability and the emphasis of the demo, since the model already maps.</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    P0[Initial mapping&lt;br/&gt;~50%] --&gt; R1{Reviewer}
+    R1 --&gt;|correction as NEW request&lt;br/&gt;same document| P1[Mapping ~60%]
+    P1 --&gt; R2{Reviewer}
+    R2 --&gt;|iterate| P2[Mapping 100%]
+    P2 --&gt; PROMOTE[Promote to&lt;br/&gt;template / mapping library]
+
+    R1 -.classify fix.-&gt; DEC[Where does the change belong?]
+    DEC --&gt;|positional / field rule| MAPPING[Mapping sheet]
+    DEC --&gt;|systemic across files| PROMPT[High-level prompt&lt;br/&gt;new version]
+    DEC --&gt;|extraction quality| LLMCFG[LLM / OCR config]
+</div></figure>
+<p><strong>How correction works</strong></p>
+<ul>
+<li>Each correction is submitted as a <strong>new API request against the same document</strong> — no in-place mutation, so every iteration is reproducible and auditable.</li>
+<li>The reviewer's real decision is <strong>where the fix belongs</strong>, and the portal must make this explicit:</li>
+<li><strong>Mapping</strong> — positional/field-specific corrections (the account-range example, position 82→40).</li>
+<li><strong>Prompt (new version)</strong> — when the <em>same</em> inaccuracy persists across multiple files and mapping tweaks don't resolve it, the high-level instruction itself is wrong and needs a new version.</li>
+<li><strong>LLM / OCR config</strong> — when errors trace to text conversion, OCR, or model quality rather than instructions.</li>
+<li><strong>Rule generalization.</strong> The tool should learn portable rules — <code>P + WR = wire</code>, <code>ACH = ACH transaction</code>, pin-number → sender/currency when sender IDs are absent — and apply them across clients, not just the file they were learned on.</li>
+</ul>
+<p><strong>Reuse library (how learning compounds)</strong></p>
+<ul>
+<li>Finalized mapping sheets are stored as <strong>templates</strong> keyed by <code>mapping_id</code>.</li>
+<li>On a new file, the library finds the nearest known format ("this looks like the Walmart format") and seeds the mapping from it; the reviewer adjusts and resubmits.</li>
+<li><strong>QA vs production discipline:</strong> iteration/correction happens in <strong>QA</strong>. <strong>Production / straight-through processing uses finalized mappings only</strong> — no rapid changes against live traffic.</li>
+<li>Unknown fields with no matching rule still fall to manual investigation / a client call — the tool narrows the manual surface, it doesn't eliminate it.</li>
+</ul>
+<hr />
+<h2 id="sec-7"><span class="secnum">07</span><span class="sectext">Capability 3 — MIG generation</span></h2>
+<p><strong>Goal:</strong> emit the MIG — the implementation document ITX analysts consume — from the accepted mapping.</p>
+<p>The MIG is <strong>distinct from the mapping sheet</strong> even though both describe source→target translation: the mapping is the internal artifact; the MIG is the handoff deliverable. It must carry:</p>
+<ul>
+<li>Source fields, control totals, record types, <strong>field positions</strong>, data types, target destinations.</li>
+<li><strong>Column-O transformation instructions</strong> — exactly how each client field changes for processing (e.g. move position 82 → 40).</li>
+<li>Record-identifier handling — fixed PNC identifiers (the <code>060</code> record) vs client identifiers (<code>H</code>/<code>P</code>).</li>
+<li>Payment-type resolution — e.g. the <code>P</code> record at positions <strong>388–399</strong>, where <code>WR</code> = wire and <code>ACH</code> = ACH.</li>
+<li>Type and routing flags — numeric vs alpha, domestic vs international.</li>
+</ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    ACC[Accepted mapping&lt;br/&gt;100% for target file] --&gt; GEN[MIG generator]
+    GEN --&gt; COLO[Emit column-O&lt;br/&gt;transform instructions]
+    GEN --&gt; RECID[Resolve record identifiers&lt;br/&gt;060 / H / P]
+    GEN --&gt; FLAGS[Type + routing flags&lt;br/&gt;num/alpha, dom/intl]
+    COLO &amp; RECID &amp; FLAGS --&gt; DOC[MIG document]
+    DOC --&gt; ITX[Handoff to ITX / MIS]
+</div></figure>
+<p>For the POC, the reference MIG + mapping material Justin/Julie are formatting (ISO→flat and DSV→flat) is the <strong>ground truth</strong> the generated MIG is scored against.</p>
+<hr />
+<h2 id="sec-8"><span class="secnum">08</span><span class="sectext">Configuration &amp; data model (MongoDB)</span></h2>
+<p>Everything that changes behavior is config, not code. Indicative collections:</p>
+<ul>
+<li><strong><code>workflows</code></strong> — ordered step lists (<code>ocr?</code> → <code>file_to_text</code> → <code>extract</code>); a workflow can be a full translation or a single-field conversion.</li>
+<li><strong><code>prompts</code></strong> — high-level instructions, <strong>versioned</strong>; exactly one <code>active</code> version per prompt at a time.</li>
+<li><strong><code>mappings</code></strong> — request-level, file-specific rules; addressable by <code>mapping_id</code>; service/client-agnostic where possible.</li>
+<li><strong><code>templates</code></strong> (library) — promoted known-good mappings + format fingerprints for similarity matching.</li>
+<li><strong><code>llm_settings</code></strong> — model, params, endpoint (on-prem vs Foundry vs GPT-5), per workflow/step.</li>
+<li><strong><code>connectors</code></strong> — input channels and downstream endpoints (SFG, FLIPS, API…).</li>
+</ul>
+<p><strong>Prompt versioning behavior (required):</strong> promoting a new prompt version in the portal automatically marks the previous version <code>inactive</code> and the new one <code>active</code>, and the version history records what changed and which config previously worked. Corrections that are "just mapping" never touch prompt versions.</p>
+<p><strong>Request shape (conceptual):</strong></p>
+<pre><code class="language-json">{
+  &quot;document_ref&quot;: &quot;…&quot;,
+  &quot;workflow_id&quot;: &quot;iso_to_flat_v1&quot;,
+  &quot;mapping_id&quot;: &quot;kroger_ip_iso&quot;,     // or an inline mapping sheet
+  &quot;overrides&quot;: { &quot;positions&quot;: { &quot;82&quot;: 40 } }
+}
+</code></pre>
+<hr />
+<h2 id="sec-9"><span class="secnum">09</span><span class="sectext">Exception handling &amp; accuracy gating</span></h2>
+<ul>
+<li>The <strong>exception queue</strong> is a separate component, triggered <strong>automatically</strong> (below an accuracy rule) or <strong>manually</strong> (reviewer routes a file in).</li>
+<li>Accuracy is scored against ground truth; the <strong>70%</strong> figure from the discussion is an example threshold, not a fixed policy — thresholds should be configurable per workflow/client.</li>
+<li>Error attribution matters because it routes the fix: extraction errors can originate in the <strong>mapping, prompt, LLM, text conversion, or OCR</strong>, and the reviewer/portal needs enough signal to tell them apart.</li>
+</ul>
+<hr />
+<h2 id="sec-10"><span class="secnum">10</span><span class="sectext">Analytics &amp; developer portal</span></h2>
+<p>Primarily an <strong>internal dev/engineering</strong> surface, with selected operational views exposed more broadly.</p>
+<ul>
+<li><strong>Client-level analytics</strong> — accuracy and efficiency compared across clients (Kroger vs Walmart), including processing time (the 10-min vs 1-min contrast).</li>
+<li><strong>Stuck-case visibility</strong> — flag files where <em>mapping changes stop moving accuracy</em>, signalling the high-level prompt needs revision rather than more mapping edits.</li>
+<li><strong>Prompt-version control</strong> — active/inactive state, diff of what changed, which version last worked.</li>
+<li><strong>Model selection</strong> — visible and switchable; supports cost/quality comparison, e.g. GPT-5 vs an on-prem ~90B option vs ~235B.</li>
+<li><strong>Template library view</strong> — which mappings are validated for which clients/formats, to seed future onboarding.</li>
+</ul>
+<hr />
+<h2 id="sec-11"><span class="secnum">11</span><span class="sectext">Governance, security &amp; environments</span></h2>
+<p>This gates go-live, so it runs <strong>in parallel</strong> with build, not after.</p>
+<ul>
+<li><strong>Gen AI request + PII/PHI review</strong> is required; end-to-end approval is ~<strong>1–1.5 months</strong> (Hassan is coordinating the form/request).</li>
+<li><strong>On-prem / Foundry first.</strong> ACH transactional data already lives in PNC private data centers, so <strong>Foundry</strong> is a candidate for the AI path pending governance review. Prototyping proceeds with <strong>on-prem models + approved test prompts</strong> while the request is in flight.</li>
+<li><strong>Integrity rule:</strong> unapproved LLM use must <strong>not</strong> be presented as a completed POC. The rule-based ISO path (Section 12) is what lets the demo progress honestly before AI approval lands.</li>
+</ul>
+<hr />
+<h2 id="sec-12"><span class="secnum">12</span><span class="sectext">Delivery phasing</span></h2>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    subgraph Now[&quot;Phase 0 — POC demo&quot;]
+        RB[Rule-based ISO→flat&lt;br/&gt;mapping] --&gt; LRN[Learning/correction&lt;br/&gt;demo] --&gt; MIGP[MIG generation]
+    end
+    subgraph Par[&quot;In parallel&quot;]
+        GOV[Gen AI request +&lt;br/&gt;PII/PHI review]
+        AIA[AI architecture&lt;br/&gt;Divia]
+    end
+    Now --&gt; P1[Phase 1 — AI-backed&lt;br/&gt;ISO + DSV, template library]
+    Par --&gt; P1
+    P1 --&gt; P2[Phase 2 — multi-format&lt;br/&gt;CAMT.052/053/054/086, PAIN.01…]
+    P2 --&gt; P3[Phase 3 — ITX replacement,&lt;br/&gt;outbound reports, more channels]
+</div></figure>
+<ul>
+<li><strong>Phase 0 (this POC):</strong> a <strong>rule-based</strong> ISO→flat implementation is legitimate to demonstrate mapping + learning + MIG quickly, while the AI architecture is built alongside. Keep it to <strong>one ISO file → one flat format</strong>; do not expand into a multi-client platform before the three capabilities are proven.</li>
+<li><strong>Parallel tracks:</strong> Divia builds the AI architecture; Hassan drives governance. Justin/Julie deliver the verified, color-coded ISO→flat and DSV→flat MIG + mapping (the ground truth) — expected imminently.</li>
+<li><strong>Later:</strong> a <strong>funding request</strong> for next year and <strong>server-architecture changes</strong> are sequenced <em>after</em> POC steps 1 and 2, not before. Broader formats (CAMT.052/053/054/086, PAIN.01) and outbound reports (e.g. PAIN.002) follow.</li>
+</ul>
+<hr />
+<h2 id="sec-13"><span class="secnum">13</span><span class="sectext">Open decisions to close with the DS team</span></h2>
+<ol>
+<li><strong>Similarity matching</strong> — what fingerprints a format for the template library (record identifiers, field signatures, positional layout)?</li>
+<li><strong>Accuracy scoring</strong> — field-level exact match vs weighted/critical-field scoring, and per-client thresholds.</li>
+<li><strong>Rule store</strong> — do generalized rules (<code>P+WR=wire</code>) live inside mappings, as a shared rule collection, or both?</li>
+<li><strong>Ground-truth management</strong> — how MIG/mapping references are versioned as clients change formats.</li>
+<li><strong>Foundry vs on-prem model split</strong> — which steps run where under governance constraints.</li>
+<li><strong>MIG fidelity bar</strong> — how close to Justin/Julie's formatted MIG the generated MIG must be to count as "done."</li>
+<li><strong>Exception-handling surface</strong> — a dedicated exception service with a reviewer worklist UI, or a <code>status</code> field plus a table view for the POC?</li>
+</ol>
+    </article>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+  startOnLoad: true,
+  theme: 'base',
+  themeVariables: {
+    fontFamily: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+    fontSize: '14px',
+    primaryColor: '#eef3f2',
+    primaryBorderColor: '#0e7c73',
+    primaryTextColor: '#14181f',
+    lineColor: '#8a99a3',
+    secondaryColor: '#f4f1ea',
+    tertiaryColor: '#ffffff',
+    clusterBkg: '#f7f9f9',
+    clusterBorder: '#cbd6d4',
+    edgeLabelBackground: '#ffffff'
+  },
+  flowchart: { curve: 'basis', htmlLabels: true, padding: 14 },
+  sequence: { useMaxWidth: true, mirrorActors: false }
+});
+  // Scrollspy for the section nav
+  const links = [...document.querySelectorAll('.side a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = map.get(e.target.id);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('h2[id]').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>
