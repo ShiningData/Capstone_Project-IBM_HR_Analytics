@@ -64,13 +64,11 @@ Everything you install in this course lives in one public repo: claude-code-vaul
 Verify the toolchain in four commands. Run each and check the expected outcome:
 
 ````markdown
-```
 claude --version
 gh auth status
 node --version
 git --version
 Expected: a Claude Code version number (anything current), gh showing Logged in to github.com with a green check, Node 18 or newer, any git. If gh auth status fails, run gh auth login and pick HTTPS.
-```
 ````
 
 Then clone the companion repo somewhere you keep projects:
