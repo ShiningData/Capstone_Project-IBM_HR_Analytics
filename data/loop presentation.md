@@ -63,7 +63,7 @@ Everything you install in this course lives in one public repo: claude-code-vaul
 🔧 Practice
 Verify the toolchain in four commands. Run each and check the expected outcome:
 
-````markdown
+````mermaid
 claude --version
 gh auth status
 node --version
