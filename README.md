@@ -33,3 +33,35 @@ Modeling notebooks can be reached from following [link](https://github.com/Shini
 Final report can be found [here](https://github.com/ShiningData/Capstone_Project-IBM_HR_Analytics/blob/master/Milestone_Report/Final%20Capstone%20Project%20Report%20.pdf)
 
 Project Presentation can be found [here](https://github.com/ShiningData/Capstone_Project-IBM_HR_Analytics/blob/master/Milestone_Report/Capstone%20Project%20Presentation.pptx)
+
+Using PNC Payment Data to Improve Account Verification
+PNC’s verification team explored how to supplement Early Warning data with its own payment records and micro-deposit results to improve coverage and client confidence.
+Current verification gaps and proposed direction
+Verification Services primarily relies on Early Warning Services (EWS) for account status and ownership checks; gaps in its data can leave clients without a useful answer.
+The product team wants to use PNC’s data to reduce those gaps, beginning with PNC accounts and ownership matching, then potentially extending to accounts supported by transaction history.
+Micro-deposit verification is being developed as a fallback: a penny transaction carries a six-digit code that the recipient confirms through a client-branded email or text experience.
+The micro-deposit project is being fast-tracked using agentic development; the team was about 40 days into a 90-day build window. Commercial launch is not guaranteed by day 91.
+The proposed longer-term approach could combine EWS, PNC records, and other data sources, with a normalized client-facing result rather than a more complex set of statuses.
+
+Data analysis, matching, and risk considerations
+A retrospective analysis would compare client inquiry inputs and EWS responses with PNC’s contributed data as of the time of each inquiry.
+PAI records the inquiry inputs and raw EWS outputs. PNC account or contribution history would need to come from historical Hogan or other core tables, with timing aligned to what EWS likely held at the time.
+The analysis should test EWS name-matching behavior without assuming it is always correct; prior work found cases where transaction names appeared to match but EWS returned a mismatch.
+Any PNC matching rules would need to account for recency, transaction frequency, returns, and fraud indicators. Current account status may be more informative than older data contributed to EWS.
+Chris said the client terms pass through the information-only and liability limitations in PNC’s EWS agreement. He noted that misunderstandings can occur when an account appears to exist but ownership is unconfirmed.
+EWS charges $0.55 per payment-check inquiry and an additional $0.55 for an AOA match when ownership data is available. PNC currently pays EWS for inquiries about PNC accounts whose data PNC contributed.
+
+Micro-deposits and virtual accounts
+Micro-deposits could create reusable verification evidence, subject to a defined validity period; the team discussed possible shelf lives but made no decision.
+EWS does not currently support virtual account numbers. PNC’s Virtual Account Management product maintains a crosswalk between supported virtual accounts and underlying DDAs, though virtual-account schemes vary across banks.
+Chris’s view was that transaction history could help validate a virtual account even without identifying it as virtual, if payments to that identifier repeatedly completed without issue.
+
+Planning and delivery
+The team did not set a production date for the data-driven verification work. Chris hopes to make progress in 2027, subject to engineering capacity and approvals from business, risk, legal, and other PNC stakeholders.
+The product team expects micro-deposit launch in the first quarter of next year.
+Direct front-end engineering support was not considered necessary at this stage; the team highlighted the need for standardized statuses and response translation.
+
+Action items
+Send the presentation deck to the team.
+Use the planning meeting in about two weeks to map the work, estimate duration, and update Chris on priorities and needs.
+
